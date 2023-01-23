@@ -1,0 +1,36 @@
+version: '3.9'
+
+services:
+
+  postgres:
+    image: postgres:${PG_VERSION}
+    container_name: ${PROJECT_NAME}_postgres
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${PG_SUPERUSER}
+      - POSTGRES_PASSWORD=${PG_SUPERUSER_PASSWORD}
+      - POSTGRES_DB=${PG_NAME}
+      - PGPORT=${PG_PORT}
+      - PGTZ=${PG_TZ}
+      - TZ=${PG_TZ}
+    ports:
+      - ${PG_PORT}:${PG_PORT}
+    networks:
+      - api_server
+
+  web:
+    build: app
+    depends_on:
+     - postgres
+    env_file:
+      - .env
+    environment:
+      - TZ="Europe/Moscow"
+    ports:
+      - "8000:8000"
+    networks:
+      - api_server
+
+networks:
+  api_server:
