@@ -44,5 +44,3 @@ async def get_async_db() -> AsyncGenerator:
         await session.commit()
     finally:
         await session.close()
-
-

@@ -1,4 +1,4 @@
-[
+usernames = [
   "0",
   "about",
   "access",

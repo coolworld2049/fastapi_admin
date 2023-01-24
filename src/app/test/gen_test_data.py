@@ -81,7 +81,7 @@ async def init_db_test():
             user_in_obj = await crud.user.create(db, obj_in=user_in)
             users.append(user_in_obj)
 
-        with open(f"users_cred_list.json", 'w') as wr:
+        with open(f"/tmp/test_api-users_cred_list.json", 'w') as wr:
             wr.write(json.dumps(users_cred_list, indent=4))
 
         end = time.perf_counter()

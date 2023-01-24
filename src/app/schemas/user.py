@@ -1,19 +1,15 @@
-import json
 import re
-from datetime import datetime
 from difflib import SequenceMatcher
-from pathlib import Path
 from typing import Optional
 
 from pydantic import BaseModel, EmailStr, validator, root_validator, Field
 
 from app.models.classifiers import UserRole
+from app.resources.reserved_username import usernames
 
 password_exp = r"^(?=.*[A-Z].*[A-Z])(?=.*[!@#$&*])(?=.*[0-9].*[0-9])(?=.*[a-z].*[a-z].*[a-z]).{11,}$"
 email_exp = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 username_exp = "[A-Za-z_0-9]*"
-
-reserved_username_list = json.loads(open(f'{Path().resolve()}/resources/reserved_username.json').read())
 
 
 class UserBase(BaseModel):
@@ -26,12 +22,10 @@ class UserBase(BaseModel):
     phone: Optional[str]
     is_active: bool = True
     is_superuser: bool = False
-    created_at: Optional[datetime]
-    updated_at: Optional[datetime]
 
     @validator('username')
     def validate_username(cls, value):  # noqa
-        assert value not in reserved_username_list, \
+        assert value not in usernames, \
             'This username is reserved'
         return value
 
@@ -68,8 +62,9 @@ class UserCreate(UserBase):
 
     @validator('password')
     def validate_password(cls, value):  # noqa
-        assert re.match(password_exp, value), "Make sure the password is: 11 characters long," \
-                                              " 2 uppercase and 3 lowercase letters, 1 special char, 2 numbers"
+        assert re.match(password_exp, value), \
+            "Make sure the password is: 11 characters long," \
+            " 2 uppercase and 3 lowercase letters, 1 special char, 2 numbers"
         return value
 
 

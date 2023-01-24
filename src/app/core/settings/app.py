@@ -1,5 +1,6 @@
 import logging
 import sys
+from logging.handlers import RotatingFileHandler
 from typing import Any, Dict, List, Tuple
 
 from loguru import logger
@@ -26,9 +27,6 @@ class AppSettings(BaseAppSettings):
     PG_SUPERUSER_PASSWORD: str
     DATABASE_URL: PostgresDsn
 
-    max_connection_count: int = 10
-    min_connection_count: int = 10
-
     FIRST_SUPERUSER_USERNAME: str
     FIRST_SUPERUSER_EMAIL: str
     FIRST_SUPERUSER_PASSWORD: str
@@ -40,6 +38,13 @@ class AppSettings(BaseAppSettings):
     SECRET_KEY: str
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
+
+    BOT_TOKEN: str
+
+    log_file_max_bytes = 314572800
+
+    max_connection_count: int = 10
+    min_connection_count: int = 10
 
     api_prefix: str = '/api/v1'
 
@@ -69,6 +74,9 @@ class AppSettings(BaseAppSettings):
         logging.getLogger().handlers = [InterceptHandler()]
         for logger_name in self.loggers:
             logging_logger = logging.getLogger(logger_name)
-            logging_logger.handlers = [InterceptHandler(level=self.logging_level)]
+            logging_logger.handlers = [
+                InterceptHandler(level=self.logging_level),
+                RotatingFileHandler('access.log', maxBytes=self.log_file_max_bytes, backupCount=1)
+            ]
 
         logger.configure(handlers=[{"sink": sys.stderr, "level": self.logging_level}])

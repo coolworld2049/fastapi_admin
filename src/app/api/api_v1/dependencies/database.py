@@ -10,3 +10,4 @@ async def get_session() -> AsyncGenerator:
         session: AsyncSession
         session.current_user_id = None
         yield session
+

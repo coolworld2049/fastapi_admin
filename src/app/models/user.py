@@ -1,7 +1,7 @@
 from sqlalchemy import CheckConstraint, Column, Text, text, SmallInteger, String, Boolean
 from sqlalchemy.dialects.postgresql import ENUM
-from sqlalchemy_mixins.timestamp import TimestampsMixin
 
+from app.models import TimestampsMixin
 from app.models.base import BaseDbModel
 from app.models.classifiers import UserRole
 

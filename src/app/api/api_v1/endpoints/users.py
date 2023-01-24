@@ -112,8 +112,8 @@ async def read_user_by_id(
 @router.put("/{id}", response_model=schemas.User)
 async def update_user(
         *,
-        db: AsyncSession = Depends(database.get_session),
         id: int,
+        db: AsyncSession = Depends(database.get_session),
         user_in: schemas.UserUpdate,
         current_user: models.User = Depends(authentication.get_current_active_superuser),
 ) -> Any:
@@ -160,10 +160,10 @@ async def delete_user(
 @router.get("/role/{rolname}", response_model=List[schemas.User])
 async def read_users_by_role_id(
         response: Response,
+        rolname: str = Query(None),
         db: AsyncSession = Depends(database.get_session),
         current_user: models.User = Depends(authentication.get_current_active_user),
-        request_params: schemas.RequestParams = Depends(params.parse_react_admin_params(User)),
-        rolname: str = Query(None),
+        request_params: schemas.RequestParams = Depends(params.parse_react_admin_params(User))
 ) -> Any:
     """
     Retrieve users.
@@ -183,11 +183,11 @@ async def read_users_by_role_id(
 @router.put("/role/{rolname}/{id}", response_model=schemas.User)
 async def update_user_by_role(
         *,
+        id: int = Query(None),
+        rolname: str = Query(None),
         db: AsyncSession = Depends(database.get_session),
         user_in: schemas.UserUpdate,
         current_user: models.User = Depends(authentication.get_current_active_superuser),
-        rolname: str = Query(None),
-        id: int = Query(None)
 ) -> Any:
     """
     Update a user by role.
