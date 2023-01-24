@@ -6,9 +6,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from app import crud
+from app import crud, schemas
 from app.api.api_v1.dependencies import database
-from app.models import schemas
 from app.core.config import get_app_settings
 from app.services import jwt
 

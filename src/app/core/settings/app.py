@@ -33,7 +33,7 @@ class AppSettings(BaseAppSettings):
     FIRST_SUPERUSER_EMAIL: str
     FIRST_SUPERUSER_PASSWORD: str
 
-    PROJECT_NAME: str
+    APP_NAME: str
     PG_TZ: str
     PG_VERSION: str
 
@@ -47,7 +47,7 @@ class AppSettings(BaseAppSettings):
 
     allowed_hosts: List[str] = ["*"]
 
-    logging_level: int = logging.INFO
+    logging_level: int = logging.DEBUG
     loggers: Tuple[str, str] = ("uvicorn.asgi", "uvicorn.access")
 
     class Config:

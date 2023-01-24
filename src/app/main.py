@@ -1,4 +1,4 @@
-import pathlib
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
@@ -43,8 +43,7 @@ def get_application() -> FastAPI:
 
     application.include_router(api_router, prefix=get_app_settings().api_prefix)
 
-    application.mount("/static", StaticFiles(directory=f"{pathlib.Path().cwd()}/static", html=True),
-                      name="static")
+    application.mount("/static", StaticFiles(directory=f"{Path().resolve()}/static", html=True), name="static")
 
     return application
 

@@ -4,17 +4,16 @@ import asyncpg
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.utils.markdown import escape_md
 
-from app import crud
+from app import crud, schemas
 from app.core.config import get_app_settings
-from app.models import schemas
-from app.db.session import AsyncSessionFactory
+from app.db.session import async_session
 
 API_TOKEN = '5654331350:AAGLWJSUXdesNc9G-TvbK4lr50pr0XdKuds'
 
 logging.basicConfig(level=logging.INFO)
 
 bot = Bot(token=API_TOKEN)
-bot['db'] = AsyncSessionFactory()
+bot['db'] = async_session()
 dp = Dispatcher(bot)
 settings = get_app_settings()
 

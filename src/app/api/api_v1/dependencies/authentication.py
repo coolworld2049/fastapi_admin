@@ -9,11 +9,10 @@ from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from app import crud
+from app import crud, schemas
 from app.api.api_v1.dependencies import database
 from app.core.config import get_app_settings
-from app.models import schemas
-from app.models.domain.user import User
+from app.models.user import User
 from app.services.jwt import oauth2Scheme
 
 

@@ -1,22 +1,24 @@
 import json
-import pathlib
 import re
 from datetime import datetime
 from difflib import SequenceMatcher
+from pathlib import Path
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, validator, root_validator
+from pydantic import BaseModel, EmailStr, validator, root_validator, Field
+
+from app.models.classifiers import UserRole
 
 password_exp = r"^(?=.*[A-Z].*[A-Z])(?=.*[!@#$&*])(?=.*[0-9].*[0-9])(?=.*[a-z].*[a-z].*[a-z]).{11,}$"
 email_exp = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 username_exp = "[A-Za-z_0-9]*"
 
-reserved_username_list = json.loads(open(f'{pathlib.Path().cwd()}/db/reserved_username.json').read())
+reserved_username_list = json.loads(open(f'{Path().resolve()}/resources/reserved_username.json').read())
 
 
 class UserBase(BaseModel):
     email: EmailStr
-    role: str
+    role: UserRole = Field(...)
     username: str
     full_name: Optional[str]
     age: Optional[int]
@@ -33,7 +35,7 @@ class UserBase(BaseModel):
             'This username is reserved'
         return value
 
-    @root_validator
+    @root_validator()
     def validate_all(cls, values):  # noqa
         assert re.match(email_exp, values.get('email')), \
             "Invalid email"
@@ -56,6 +58,9 @@ class UserBase(BaseModel):
             raise ValueError("Phone Number Invalid.")
         return v
 
+    class Config:
+        use_enum_values = True
+
 
 # Properties to receive via API on creation
 class UserCreate(UserBase):
@@ -76,7 +81,7 @@ class UserUpdate(UserBase):
 class UserInDBBase(UserBase):
     id: Optional[int] = None
 
-    class Config:
+    class Config(UserBase.Config):
         orm_mode = True
 
 

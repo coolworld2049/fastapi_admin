@@ -10,6 +10,7 @@ from sqlalchemy.orm import sessionmaker
 
 from app.core.config import get_app_settings
 
+Base = declarative_base()
 
 engine: AsyncEngine = engine.create_async_engine(
     get_app_settings().DATABASE_URL.replace('postgresql', 'postgresql+asyncpg'),
@@ -18,7 +19,7 @@ engine: AsyncEngine = engine.create_async_engine(
     json_serializer=jsonable_encoder,
 )
 
-AsyncSessionFactory = sessionmaker(
+async_session = sessionmaker(
     engine,
     class_=AsyncSession,
     expire_on_commit=False,
@@ -26,13 +27,11 @@ AsyncSessionFactory = sessionmaker(
     autoflush=False
 )
 
-Base = declarative_base()
-
 pg_database = Database(get_app_settings().DATABASE_URL)
 
 
 async def get_async_db() -> AsyncGenerator:
-    session: AsyncSession = AsyncSessionFactory() # noqa
+    session: AsyncSession = async_session()  # noqa
     try:
         yield session
     except SQLAlchemyError as sql_ex:
@@ -45,3 +44,5 @@ async def get_async_db() -> AsyncGenerator:
         await session.commit()
     finally:
         await session.close()
+
+

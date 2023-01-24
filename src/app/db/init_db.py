@@ -2,13 +2,13 @@ import logging
 import pathlib
 
 from asyncpg import Connection
+from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from app import crud
-from app.models import schemas
+from app import crud, schemas
 from app.core.config import get_app_settings
-from app.db import classifiers
-from app.db.session import engine, AsyncSessionFactory, pg_database, Base
+from app.db.session import engine, async_session, pg_database, Base
+from app.models.classifiers import UserRole
 
 
 async def exec_sql_file(path: pathlib.Path, conn: Connection):
@@ -31,11 +31,12 @@ async def create_all():
 
 
 async def init_db():
-    db = AsyncSessionFactory()
+    db = async_session()
     await create_all()
-    for sql_f in list(pathlib.Path(f"{pathlib.Path().cwd()}/db/sql/").iterdir()):
+    for sql_f in list(pathlib.Path(f"{pathlib.Path().resolve()}/db/sql/").iterdir()):
         if not sql_f.is_dir():
             await exec_sql_file(sql_f, await pg_database.get_connection())
+            logger.info(sql_f.name)
     super_user = await crud.user.get_by_email(db, email=get_app_settings().FIRST_SUPERUSER_EMAIL)
     if not super_user:
         user_in_admin = schemas.UserCreate(
@@ -44,6 +45,6 @@ async def init_db():
             is_superuser=True,
             full_name='Super User',
             username=get_app_settings().FIRST_SUPERUSER_USERNAME,
-            role=classifiers.UserRole.admin.name
+            role=UserRole.admin.name
         )
         await crud.user.create(db, obj_in=user_in_admin)

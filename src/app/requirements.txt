@@ -16,3 +16,4 @@ asyncpg_utils
 pytz
 sqlalchemy_mixins
 sqlalchemy_views
+asgi_lifespan
