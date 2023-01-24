@@ -1,13 +1,12 @@
 import asyncio
 
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncConnection
+from asyncpg import Connection
+from loguru import logger
 from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed
 
-from app.db.session import engine
-from loguru import logger
+from app.db.session import pg_database
 
-max_tries = 60 * 5  # 5 minutes
+max_tries = 60  # 1 minutes
 wait_seconds = 1
 
 
@@ -19,18 +18,12 @@ wait_seconds = 1
 )
 async def init() -> None:
     try:
-        async with engine.connect() as conn:
-            conn: AsyncConnection
-            try:
-                result = await conn.execute(text("SELECT * from version()"))
-                logger.info(f'db version: {result.scalar()}')
-            except Exception as e:
-                logger.info(f'backend_pre_start: Exception: {e.args}')
-                await conn.rollback()
-                await conn.close()
+        conn: Connection = await pg_database.get_connection()
+        logger.info(f'check db version')
+        result = await conn.fetch("SELECT * from version()")
+        logger.info(f'db version: {result}')
     except Exception as e:
-        logger.error(e)
-        raise e
+        logger.info(e.args)
 
 
 def main() -> None:

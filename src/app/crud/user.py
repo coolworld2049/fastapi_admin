@@ -5,10 +5,10 @@ from sqlalchemy import and_
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.user import User
 from app.services.security import verify_password, get_password_hash
 from app.crud.base import CRUDBase
-from app.models.schemas import RequestParams, UserCreate, UserUpdate
-from app.models.domain.user import User
+from app.schemas import RequestParams, UserCreate, UserUpdate
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
@@ -23,7 +23,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return db_obj
 
     async def update(
-            self, db: AsyncSession, *, db_obj: User, obj_in: Union[UserUpdate, Dict[str, Any]]
+            self, db: AsyncSession, *, db_obj: User, obj_in: UserUpdate | dict[str, Any]
     ) -> User:
         if isinstance(obj_in, dict):
             update_data = obj_in

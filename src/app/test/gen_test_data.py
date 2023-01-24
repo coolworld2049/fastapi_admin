@@ -11,12 +11,11 @@ from sqlalchemy.ext.asyncio import AsyncConnection
 from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app import crud
-from app.models import schemas
-from app.db import classifiers
+from app import crud, schemas
 from app.db.init_db import init_db
-from app.db.session import pg_database, AsyncSessionFactory, engine
-from app.models.domain.user import User
+from app.db.session import pg_database, async_session, engine
+from app.models.classifiers import UserRole
+from app.models.user import User
 
 fake: Faker = Faker()
 
@@ -30,7 +29,7 @@ def gen_rand_password(number: int, rnd_str_length: int = 4):
 
 
 async def init_db_test():
-    db: AsyncSession = AsyncSessionFactory()
+    db: AsyncSession = async_session()
     asyncpg_conn: Connection = await pg_database.get_connection()
     try:
         users_count = 50
@@ -57,12 +56,12 @@ async def init_db_test():
 
         users: list[User] = []
         users_cred_list = []
-        role = classifiers.UserRole.admin.name
+        role = UserRole.admin.name
         for us in range(users_count):
             logger.info(f"UserCreate: {us}/{users_count}")
             us += 2
             if us >= ration_teachers_to_students:
-                role = classifiers.UserRole.anon.name
+                role = UserRole.anon.name
 
             user_in = schemas.UserCreate(
                 email=f'{role}{us}@gmail.com',
@@ -82,7 +81,7 @@ async def init_db_test():
             user_in_obj = await crud.user.create(db, obj_in=user_in)
             users.append(user_in_obj)
 
-        with open(f"users_cred_list.json", 'w') as wr:
+        with open(f"/tmp/test_api-users_cred_list.json", 'w') as wr:
             wr.write(json.dumps(users_cred_list, indent=4))
 
         end = time.perf_counter()

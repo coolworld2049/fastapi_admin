@@ -1,22 +1,20 @@
-import json
-import pathlib
 import re
-from datetime import datetime
 from difflib import SequenceMatcher
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, validator, root_validator
+from pydantic import BaseModel, EmailStr, validator, root_validator, Field
+
+from app.models.classifiers import UserRole
+from app.resources.reserved_username import usernames
 
 password_exp = r"^(?=.*[A-Z].*[A-Z])(?=.*[!@#$&*])(?=.*[0-9].*[0-9])(?=.*[a-z].*[a-z].*[a-z]).{11,}$"
 email_exp = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 username_exp = "[A-Za-z_0-9]*"
 
-reserved_username_list = json.loads(open(f'{pathlib.Path().cwd()}/db/reserved_username.json').read())
-
 
 class UserBase(BaseModel):
     email: EmailStr
-    role: str
+    role: UserRole = Field(...)
     username: str
     full_name: Optional[str]
     age: Optional[int]
@@ -24,16 +22,14 @@ class UserBase(BaseModel):
     phone: Optional[str]
     is_active: bool = True
     is_superuser: bool = False
-    created_at: Optional[datetime]
-    updated_at: Optional[datetime]
 
     @validator('username')
     def validate_username(cls, value):  # noqa
-        assert value not in reserved_username_list, \
+        assert value not in usernames, \
             'This username is reserved'
         return value
 
-    @root_validator
+    @root_validator()
     def validate_all(cls, values):  # noqa
         assert re.match(email_exp, values.get('email')), \
             "Invalid email"
@@ -56,6 +52,9 @@ class UserBase(BaseModel):
             raise ValueError("Phone Number Invalid.")
         return v
 
+    class Config:
+        use_enum_values = True
+
 
 # Properties to receive via API on creation
 class UserCreate(UserBase):
@@ -63,8 +62,9 @@ class UserCreate(UserBase):
 
     @validator('password')
     def validate_password(cls, value):  # noqa
-        assert re.match(password_exp, value), "Make sure the password is: 11 characters long," \
-                                              " 2 uppercase and 3 lowercase letters, 1 special char, 2 numbers"
+        assert re.match(password_exp, value), \
+            "Make sure the password is: 11 characters long," \
+            " 2 uppercase and 3 lowercase letters, 1 special char, 2 numbers"
         return value
 
 
@@ -76,7 +76,7 @@ class UserUpdate(UserBase):
 class UserInDBBase(UserBase):
     id: Optional[int] = None
 
-    class Config:
+    class Config(UserBase.Config):
         orm_mode = True
 
 

@@ -4,7 +4,7 @@ services:
 
   postgres:
     image: postgres:${PG_VERSION}
-    container_name: ${PROJECT_NAME}_postgres
+    container_name: ${APP_NAME}_postgres
     env_file:
       - .env
     environment:

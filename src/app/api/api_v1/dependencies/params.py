@@ -6,8 +6,7 @@ from fastapi import Query, HTTPException
 from sqlalchemy import desc, asc, and_
 from sqlalchemy.orm import DeclarativeMeta
 
-from app.db import classifiers
-from app.models.schemas import RequestParams
+from app.schemas import RequestParams
 
 
 def parse_react_admin_params(model: DeclarativeMeta | Any) -> Callable[[str | None, str | None], RequestParams]:
@@ -58,7 +57,7 @@ def parse_react_admin_params(model: DeclarativeMeta | Any) -> Callable[[str | No
                     if v is None:
                         fb.append(model.__table__.c[k] == None)  # noqa
                     elif isinstance(v, str):
-                        if k in classifiers.pg_custom_type_colnames:
+                        if k:  # in classifiers.pg_custom_type_colnames
                             fb.append(model.__table__.c[k] == v)
                         else:
                             if str(k).split('_')[-1] == 'date':
