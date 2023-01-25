@@ -1,14 +1,14 @@
-from typing import Any, Dict, Optional, Union, Tuple, List
+from typing import Any, Optional, Tuple, List
 
 import sqlalchemy
 from sqlalchemy import and_
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.user import User
-from app.services.security import verify_password, get_password_hash
 from app.crud.base import CRUDBase
+from app.models.user import User
 from app.schemas import RequestParams, UserCreate, UserUpdate
+from app.services.security import verify_password, get_password_hash
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):

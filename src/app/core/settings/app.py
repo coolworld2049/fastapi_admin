@@ -40,6 +40,7 @@ class AppSettings(BaseAppSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int
 
     BOT_TOKEN: str
+    APP_BASE_URL: str
 
     log_file_max_bytes = 314572800
 

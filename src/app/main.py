@@ -1,10 +1,7 @@
-from pathlib import Path
-
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
-from starlette.staticfiles import StaticFiles
 
 from app.api.api_v1.api import api_router
 from app.api.api_v1.errors.http_error import http_error_handler
@@ -42,8 +39,6 @@ def get_application() -> FastAPI:
     application.add_exception_handler(RequestValidationError, http422_error_handler)
 
     application.include_router(api_router, prefix=get_app_settings().api_prefix)
-
-    application.mount("/static", StaticFiles(directory=f"{Path().resolve()}/static", html=True), name="static")
 
     return application
 
