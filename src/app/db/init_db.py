@@ -33,7 +33,7 @@ async def create_all():
 async def init_db():
     db = async_session()
     await create_all()
-    for sql_f in list(pathlib.Path(f"{pathlib.Path().resolve()}/db/sql/").iterdir()):
+    for sql_f in list(pathlib.Path(pathlib.Path(__file__).parent.__str__() + "/sql").iterdir()):
         if not sql_f.is_dir():
             await exec_sql_file(sql_f, await pg_database.get_connection())
             logger.info(sql_f.name)

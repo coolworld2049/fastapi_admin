@@ -2,11 +2,8 @@ version: '3.9'
 
 services:
 
-  postgres:
+  db:
     image: postgres:${PG_VERSION}
-    container_name: ${APP_NAME}_postgres
-    env_file:
-      - .env
     environment:
       - POSTGRES_USER=${PG_SUPERUSER}
       - POSTGRES_PASSWORD=${PG_SUPERUSER_PASSWORD}
@@ -17,20 +14,30 @@ services:
     ports:
       - ${PG_PORT}:${PG_PORT}
     networks:
-      - api_server
+      - backend
 
-  web:
-    build: app
-    depends_on:
-     - postgres
+  redis:
+    image: redis:latest
+    command: --port ${REDIS_PORT}
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data:cached
+    networks:
+      - backend
+
+  app:
+    build: .
     env_file:
       - .env
     environment:
-      - TZ="Europe/Moscow"
+      - DATABASE_URL=postgresql://postgres:postgres@db:5435/${PG_NAME}
+    depends_on:
+      - postgres
     ports:
       - "8000:8000"
     networks:
-      - api_server
+      - backend
 
 networks:
-  api_server:
+  backend:
