@@ -21,8 +21,6 @@ services:
     command: --port ${REDIS_PORT}
     ports:
       - ${REDIS_PORT}:${REDIS_PORT}
-    volumes:
-      - ./postgres-data:/var/lib/postgresql/data:cached
     networks:
       - backend
 
@@ -33,7 +31,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5435/${PG_NAME}
     depends_on:
-      - postgres
+      - db
     ports:
       - "8000:8000"
     networks:

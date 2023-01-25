@@ -39,3 +39,9 @@
 127.0.0.1:60427 - "GET /openapi.json HTTP/1.1" 200
 127.0.0.1:60427 - "POST /api/v1/login/access-token HTTP/1.1" 500
 127.0.0.1:60428 - "POST /api/v1/login/access-token HTTP/1.1" 500
+127.0.0.1:63214 - "GET / HTTP/1.1" 404
+127.0.0.1:63214 - "GET /favicon.ico HTTP/1.1" 404
+127.0.0.1:63214 - "GET /docs HTTP/1.1" 200
+127.0.0.1:63214 - "GET /openapi.json HTTP/1.1" 200
+127.0.0.1:63214 - "POST /api/v1/login/access-token HTTP/1.1" 200
+127.0.0.1:63214 - "GET /api/v1/users/?sort=%5B%22id%22%2C%20%22ASC%22%5D&range=%5B0%2C%2010%5D HTTP/1.1" 200

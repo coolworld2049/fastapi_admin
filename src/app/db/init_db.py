@@ -3,7 +3,7 @@ import pathlib
 
 from asyncpg import Connection
 from loguru import logger
-from sqlalchemy.ext.asyncio import AsyncConnection
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
 
 from app import crud, schemas
 from app.core.config import get_app_settings
@@ -11,7 +11,7 @@ from app.db.session import engine, async_session, pg_database, Base
 from app.models.classifiers import UserRole
 
 
-async def exec_sql_file(path: pathlib.Path, conn: Connection):
+async def execute_sql_files(path: pathlib.Path, conn: Connection):
     try:
         with open(path, encoding='utf-8') as rf:
             res = await conn.execute(rf.read())
@@ -20,31 +20,40 @@ async def exec_sql_file(path: pathlib.Path, conn: Connection):
         logging.error(f'{path.name}: {e.args}')
 
 
-async def create_all():
+async def create_all_models():
     async with engine.begin() as conn:
         conn: AsyncConnection
         try:
             Base.metadata.bind = engine
             await conn.run_sync(Base.metadata.create_all)
         except Exception as e:
-            logging.warning(e)
+            logging.info(e.args)
 
 
-async def init_db():
-    db = async_session()
-    await create_all()
-    for sql_f in list(pathlib.Path(pathlib.Path(__file__).parent.__str__() + "/sql").iterdir()):
-        if not sql_f.is_dir():
-            await exec_sql_file(sql_f, await pg_database.get_connection())
-            logger.info(sql_f.name)
+async def create_first_superuser(db: AsyncSession):
     super_user = await crud.user.get_by_email(db, email=get_app_settings().FIRST_SUPERUSER_EMAIL)
     if not super_user:
         user_in_admin = schemas.UserCreate(
             email=get_app_settings().FIRST_SUPERUSER_EMAIL,
             password=get_app_settings().FIRST_SUPERUSER_PASSWORD,
             is_superuser=True,
-            full_name='Super User',
+            full_name='No Name',
             username=get_app_settings().FIRST_SUPERUSER_USERNAME,
             role=UserRole.admin.name
         )
-        await crud.user.create(db, obj_in=user_in_admin)
+        super_user = await crud.user.create(db, obj_in=user_in_admin)
+        logger.info('created')
+    else:
+        logger.info('first superuser already exists')
+    return super_user
+
+
+async def init_db():
+    db = async_session()
+    await create_all_models()
+    for sql_f in list(pathlib.Path(pathlib.Path(__file__).parent.__str__() + "/sql").iterdir()):
+        if not sql_f.is_dir():
+            await execute_sql_files(sql_f, await pg_database.get_connection())
+            logger.info(sql_f.name)
+
+    await create_first_superuser(db)
