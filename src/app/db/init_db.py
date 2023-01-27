@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
 
 from app import crud, schemas
 from app.core.config import get_app_settings
-from app.db.session import engine, async_session, pg_database, Base
+from app.db.session import engine, pg_database, Base, SessionLocal
 from app.models.classifiers import UserRole
 
 
@@ -24,7 +24,6 @@ async def create_all_models():
     async with engine.begin() as conn:
         conn: AsyncConnection
         try:
-            Base.metadata.bind = engine
             await conn.run_sync(Base.metadata.create_all)
         except Exception as e:
             logging.info(e.args)
@@ -49,11 +48,12 @@ async def create_first_superuser(db: AsyncSession):
 
 
 async def init_db():
-    db = async_session()
     await create_all_models()
+    conn: Connection = await pg_database.get_connection()
     for sql_f in list(pathlib.Path(pathlib.Path(__file__).parent.__str__() + "/sql").iterdir()):
         if not sql_f.is_dir():
-            await execute_sql_files(sql_f, await pg_database.get_connection())
+            await execute_sql_files(sql_f, conn)
             logger.info(sql_f.name)
-
-    await create_first_superuser(db)
+    await conn.close()
+    async with SessionLocal() as db:
+        await create_first_superuser(db)
