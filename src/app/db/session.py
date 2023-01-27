@@ -1,9 +1,5 @@
-from typing import AsyncGenerator
-
 from asyncpg_utils.databases import Database
-from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine, engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -19,7 +15,9 @@ engine: AsyncEngine = engine.create_async_engine(
     json_serializer=jsonable_encoder,
 )
 
-async_session = sessionmaker(
+Base.metadata.bind = engine
+
+SessionLocal = sessionmaker(
     engine,
     class_=AsyncSession,
     expire_on_commit=False,
@@ -29,9 +27,9 @@ async_session = sessionmaker(
 
 pg_database = Database(get_app_settings().DATABASE_URL)
 
-
+"""
 async def get_async_db() -> AsyncGenerator:
-    session: AsyncSession = async_session()  # noqa
+    session: AsyncSession = SessionLocal()  # noqa
     try:
         yield session
     except SQLAlchemyError as sql_ex:
@@ -44,3 +42,4 @@ async def get_async_db() -> AsyncGenerator:
         await session.commit()
     finally:
         await session.close()
+"""

@@ -1,4 +1,4 @@
-import asyncio
+import asyncio  # noqa
 import logging
 from logging.handlers import RotatingFileHandler
 
@@ -10,8 +10,9 @@ from aiohttp.web_app import Application
 
 from app.core.config import get_app_settings
 from app.core.logging import InterceptHandler
-from app.modules.bot.loader import bot, dispatcher
-from app.modules.bot.routes.base import demo_handler, send_message_handler, check_data_handler
+from bot.loader import bot, dispatcher
+from bot.routes.base import send_message_handler, check_data_handler
+from bot.routes.demo import demo_handler
 
 logging_level = logging.INFO
 
@@ -30,9 +31,9 @@ async def bot_main():
 
 
 def bot_webapp_main():
-    async def on_startup(_bot: Bot, base_url: str):
-        await _bot.set_webhook(f"{base_url}/webhook")
-        await _bot.set_chat_menu_button(
+    async def on_startup(bot: Bot, base_url: str):  # noqa
+        await bot.set_webhook(f"{base_url}/webhook")
+        await bot.set_chat_menu_button(
             menu_button=MenuButtonWebApp(text="Open Menu", web_app=WebAppInfo(url=f"{base_url}/demo"))
         )
 
@@ -56,6 +57,7 @@ def bot_webapp_main():
 
 if __name__ == '__main__':
     try:
+        # bot_webapp_main()
         asyncio.run(bot_main())
     except Exception as e:  # noqa
         pass

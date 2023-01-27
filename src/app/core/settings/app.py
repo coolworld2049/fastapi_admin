@@ -32,8 +32,7 @@ class AppSettings(BaseAppSettings):
     FIRST_SUPERUSER_PASSWORD: str
 
     APP_NAME: str
-    PG_TZ: str
-    PG_VERSION: str
+    TZ: str
 
     SECRET_KEY: str
     ALGORITHM: str

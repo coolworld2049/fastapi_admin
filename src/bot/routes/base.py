@@ -1,6 +1,5 @@
 from pathlib import Path
 
-from aiohttp.web_fileresponse import FileResponse
 from aiohttp.web_request import Request
 from aiohttp.web_response import json_response
 
@@ -14,18 +13,16 @@ from aiogram.types import (
 )
 from aiogram.utils.web_app import check_webapp_signature, safe_parse_webapp_init_data
 
-
-async def demo_handler(request: Request):  # noqa
-    return FileResponse(Path(__file__).parent.resolve() / "demo.html")
+HTML_PATH = Path(__file__).parent.parent.resolve() / 'static/html'
 
 
 async def check_data_handler(request: Request):
     bot: Bot = request.app["bot"]
 
     data = await request.post()
-    if check_webapp_signature(bot.token, data["_auth"]):
-        return json_response({"ok": True})
-    return json_response({"ok": False, "err": "Unauthorized"}, status=401)
+    if not check_webapp_signature(bot.token, data["_auth"]):
+        return json_response({"ok": False, "err": "Unauthorized"}, status=401)
+    return json_response({"ok": True})
 
 
 async def send_message_handler(request: Request):

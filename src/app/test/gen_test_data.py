@@ -13,7 +13,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app import crud, schemas
 from app.db.init_db import init_db
-from app.db.session import pg_database, async_session, engine
+from app.db.session import pg_database, SessionLocal, engine
 from app.models.classifiers import UserRole
 from app.models.user import User
 
@@ -29,7 +29,7 @@ def gen_rand_password(number: int, rnd_str_length: int = 4):
 
 
 async def init_db_test():
-    db: AsyncSession = async_session()
+    db: AsyncSession = SessionLocal()
     asyncpg_conn: Connection = await pg_database.get_connection()
     try:
         users_count = 50
