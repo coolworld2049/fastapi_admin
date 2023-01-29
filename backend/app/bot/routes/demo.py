@@ -1,6 +1,5 @@
 from aiohttp.web_fileresponse import FileResponse
 from aiohttp.web_request import Request
-
 from bot.routes.base import HTML_PATH
 
 

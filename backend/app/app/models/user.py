@@ -1,12 +1,5 @@
-from sqlalchemy import (
-    CheckConstraint,
-    Column,
-    Text,
-    text,
-    SmallInteger,
-    String,
-    Boolean,
-)
+from sqlalchemy import (Boolean, CheckConstraint, Column, SmallInteger, String,
+                        Text, text)
 from sqlalchemy.dialects.postgresql import ENUM
 
 from app.models import TimestampsMixin

@@ -1,13 +1,13 @@
 from datetime import timedelta
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from app import crud, schemas, models
-from app.api.dependencies import database, auth
+from app import crud, models, schemas
+from app.api.dependencies import auth, database
 from app.core.config import get_app_settings
 from app.services import jwt
 

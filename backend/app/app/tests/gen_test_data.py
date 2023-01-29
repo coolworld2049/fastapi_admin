@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
 
 from app import crud, schemas
 from app.db.init_db import init_db
-from app.db.session import pg_database, SessionLocal, engine, Base
+from app.db.session import Base, SessionLocal, engine, pg_database
 from app.models.classifiers import UserRole
 from app.models.user import User
 

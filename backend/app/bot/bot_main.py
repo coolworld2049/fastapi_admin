@@ -4,16 +4,16 @@ from logging.handlers import RotatingFileHandler
 
 from aiogram import Bot
 from aiogram.types import MenuButtonWebApp, WebAppInfo
-from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
+from aiogram.webhook.aiohttp_server import (SimpleRequestHandler,
+                                            setup_application)
 from aiohttp.web import run_app
 from aiohttp.web_app import Application
+from bot.loader import bot, dispatcher
+from bot.routes.base import check_data_handler, send_message_handler
+from bot.routes.demo import demo_handler
 
 from app.core.config import get_app_settings
 from app.core.logging import InterceptHandler
-from bot.routes.base import send_message_handler, check_data_handler
-from bot.routes.demo import demo_handler
-
-from bot.loader import bot, dispatcher
 
 logging_level = logging.INFO
 
@@ -45,7 +45,7 @@ def bot_webapp_main():
             )
         )
 
-    dispatcher["base_url"] = get_app_settings().APP_BASE_URL
+    dispatcher["base_url"] = f"https://{get_app_settings().DOMAIN}/{get_app_settings().DOMAIN_PORT}"
     dispatcher.startup.register(on_startup)
 
     app = Application()

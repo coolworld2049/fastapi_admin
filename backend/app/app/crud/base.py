@@ -1,7 +1,8 @@
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union, Tuple
+from typing import (Any, Dict, Generic, Optional, Type, TypeVar,
+                    Union, Sequence)
 
 from pydantic import BaseModel
-from sqlalchemy import select, func
+from sqlalchemy import select, func, Row, RowMapping
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
@@ -42,11 +43,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         )
         if request_params:
             if request_params.filter_by is not None:
-                query = query.filter(request_params.filter_by)
-                query_count = query_count.filter(request_params.filter_by)
+                query = query.where(request_params.filter_by)
+                query_count = query_count.where(request_params.filter_by)
             if constr_filters is not None:
-                query = query.filter(constr_filters)
-                query_count = query_count.filter(constr_filters)
+                query = query.where(constr_filters)
+                query_count = query_count.where(constr_filters)
             query = (
                 query.offset(request_params.skip)
                 .limit(request_params.limit)
@@ -59,7 +60,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db: AsyncSession,
         request_params: RequestParams = None,
         filters: Any = None,
-    ) -> Tuple[List[ModelType], int]:
+    ) -> tuple[Sequence[Row | RowMapping | Any], Any]:
         query = select(self.model)
         query, query_count = await self.constr_query_filter(
             query, request_params, filters, self.model.id

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, BigInteger
+from sqlalchemy import BigInteger, Column
 from sqlalchemy_mixins import AllFeaturesMixin
 
 from app.db.session import Base

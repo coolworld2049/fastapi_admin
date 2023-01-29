@@ -1,14 +1,13 @@
-from typing import Any, Optional, Tuple, List
+from typing import Any, Optional, Sequence
 
-import sqlalchemy
-from sqlalchemy import and_
+from sqlalchemy import and_, select, Row, RowMapping
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.base import CRUDBase
 from app.models.user import User
 from app.schemas import RequestParams, UserCreate, UserUpdate
-from app.services.security import verify_password, get_password_hash
+from app.services.security import get_password_hash, verify_password
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
@@ -39,17 +38,17 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     async def get_by_id(
         self, db: AsyncSession, *, id: int, role: str = None
     ) -> Optional[User]:
-        q = sqlalchemy.select(User)
+        q = select(User)
         if role:
-            q = q.filter(User.role == role)
-        result: Result = await db.execute(q.where(User.id == id))
+            q = q.where(User.role == role)
+        q = q.where(User.id == id)
+        result: Result = await db.execute(q)
         return result.scalar()
 
     # noinspection PyMethodMayBeStatic
     async def get_by_email(self, db: AsyncSession, *, email: str) -> Optional[User]:
-        result: Result = await db.execute(
-            sqlalchemy.select(User).where(User.email == email)
-        )
+        q = select(User).where(User.email == email)
+        result: Result = await db.execute(q)
         return result.scalar()
 
     async def constr_user_role_filter(self, roles: list[str], column: Any = None):
@@ -66,7 +65,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db: AsyncSession,
         request_params: RequestParams,
         roles: list[str] = None,
-    ) -> Tuple[List[User], int]:
+    ) -> tuple[Sequence[Row | RowMapping | Any], Any]:
         flt = await self.constr_user_role_filter(roles)
         users, total = await super().get_multi(db, request_params, flt)
         return users, total

@@ -4,7 +4,7 @@ from logging.handlers import RotatingFileHandler
 from typing import Any, Dict, List, Tuple
 
 from loguru import logger
-from pydantic import PostgresDsn, AmqpDsn
+from pydantic import PostgresDsn
 
 from app.core.logging import InterceptHandler
 from app.core.settings.base import BaseAppSettings
@@ -20,6 +20,7 @@ class AppSettings(BaseAppSettings):
 
     APP_NAME: str
     DOMAIN: str
+    DOMAIN_PORT: int
     DEBUG: bool
 
     SECRET_KEY: str
@@ -39,7 +40,7 @@ class AppSettings(BaseAppSettings):
     PG_SUPERUSER_PASSWORD: str
     DATABASE_URL: PostgresDsn
 
-    SENTRY_DSN: AmqpDsn
+    # SENTRY_DSN: str
 
     REDIS_HOST: str
     REDIS_PORT: int
@@ -47,6 +48,9 @@ class AppSettings(BaseAppSettings):
     REDIS_POOL: int
 
     BOT_TOKEN: str
+
+    # CELERY_BROKER_URL: str = os.environ.get("CELERY_BROKER_URL", "redis://127.0.0.1:6379/0")
+    # CELERY_RESULT_BACKEND: str = os.environ.get("CELERY_RESULT_BACKEND", "redis://127.0.0.1:6379/0")
 
     API_V1: str = "/api/v1"
     LOGGING_LEVEL: int | str = logging.DEBUG

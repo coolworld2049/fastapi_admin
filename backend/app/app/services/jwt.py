@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Union, Any, List
+from typing import Any, List, Union
 
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt

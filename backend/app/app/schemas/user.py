@@ -2,7 +2,7 @@ import re
 from difflib import SequenceMatcher
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, validator, root_validator, Field
+from pydantic import BaseModel, EmailStr, Field, root_validator, validator
 
 from app.models.classifiers import UserRole
 from app.resources.reserved_username import usernames

@@ -3,7 +3,7 @@
 from asyncpg import Connection
 from fastapi import Depends, HTTPException
 from fastapi.logger import logger
-from jose import jwt, JWTError
+from jose import JWTError, jwt
 from sqlalchemy import text
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession

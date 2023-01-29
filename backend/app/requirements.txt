@@ -14,6 +14,7 @@ httpx~=0.23.0
 envparse~=0.2.0
 loguru==0.6.0
 
+python-dotenv
 emails
 pytz
 gunicorn
@@ -23,6 +24,7 @@ psycopg2-binary
 psycopg2
 sqlalchemy_mixins
 sqlalchemy_views
+sqlalchemy-stubs
 alembic
 celery
 raven

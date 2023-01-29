@@ -6,9 +6,8 @@ from fastapi.params import Query
 from pydantic.networks import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import models, crud, schemas
-from app.api.dependencies import database, auth
-from app.api.dependencies import params
+from app import crud, models, schemas
+from app.api.dependencies import auth, database, params
 from app.models.classifiers import UserRole
 from app.models.user import User
 
