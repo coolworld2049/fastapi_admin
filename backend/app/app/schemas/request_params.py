@@ -1,10 +1,10 @@
-from typing import Any
+from typing import Any, Optional
 
 from pydantic.main import BaseModel
 
 
 class RequestParams(BaseModel):
-    skip: int
-    limit: int
+    skip: Optional[int]
+    limit: Optional[int]
     order_by: Any
     filter_by: Any

@@ -1,9 +1,9 @@
-import asyncio
 import json
 import random
 import string
 import time
 
+import pytest
 from asyncpg import Connection, UndefinedFunctionError
 from faker import Faker
 from loguru import logger
@@ -30,11 +30,12 @@ def gen_rand_password(number: int, rnd_str_length: int = 4):
     )
 
 
-async def init_db_test():
+@pytest.mark.asyncio
+async def test_init_db():
     db: AsyncSession = SessionLocal()
     asyncpg_conn: Connection = await pg_database.get_connection()
     try:
-        users_count = 50
+        users_count = 10
         ration_teachers_to_students = users_count // 2
 
         q_truncate = f"""select truncate_tables('postgres')"""
@@ -84,10 +85,6 @@ async def init_db_test():
             wr.write(json.dumps(users_cred_list, indent=4))
 
         end = time.perf_counter()
-        logger.info(f"gen process_time: {end - start:2}")
+        logger.info(f"delta time: {end - start:2}")
     except Exception as e:
         logger.exception(e.args)
-
-
-if __name__ == "__main__":
-    asyncio.run(init_db_test())

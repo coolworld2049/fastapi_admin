@@ -13,9 +13,9 @@ username_exp = "[A-Za-z_0-9]*"
 
 
 class UserBase(BaseModel):
-    email: EmailStr
-    role: UserRole = Field(...)
-    username: str
+    email: Optional[EmailStr]
+    role: Optional[UserRole] = Field(...)
+    username: Optional[str]
     full_name: Optional[str]
     age: Optional[int]
     avatar: Optional[str]
@@ -30,6 +30,10 @@ class UserBase(BaseModel):
 
     @root_validator()
     def validate_all(cls, values):  # noqa
+        assert values.get("email")
+        assert values.get("role")
+        assert values.get("username")
+
         assert re.match(email_exp, values.get("email")), "Invalid email"
         assert re.match(
             username_exp, values.get("username")
@@ -78,7 +82,7 @@ class UserCreate(UserBase):
 
 # Properties to receive via API on update
 class UserUpdate(UserBase):
-    pass
+    password: Optional[str] = None
 
 
 class UserInDBBase(UserBase):
