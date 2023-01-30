@@ -26,7 +26,7 @@ async def test_init_db():
         users_count = 10
         ration_teachers_to_students = users_count // 2
 
-        q_truncate = f"""select truncate_tables('postgres')"""
+        q_truncate = """select truncate_tables('postgres')"""
         logger.info(q_truncate)
         try:
             await asyncpg_conn.execute(q_truncate)
@@ -69,7 +69,7 @@ async def test_init_db():
             user_in_obj = await crud.user.create(db, obj_in=user_in)
             users.append(user_in_obj)
 
-        with open(f"test_api-users_cred_list.json", "w") as wr:
+        with open("test_api-users_cred_list.json", "w") as wr:
             wr.write(json.dumps(users_cred_list, indent=4))
 
         end = time.perf_counter()
