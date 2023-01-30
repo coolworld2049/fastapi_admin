@@ -4,11 +4,10 @@ import sys
 from logging.config import fileConfig
 
 from alembic import context
+from app.core.config import get_app_settings
 from loguru import logger
 from sqlalchemy import engine_from_config, pool
 from sqlalchemy.exc import ProgrammingError
-
-from app.core.config import get_app_settings
 
 sys.path = ["", ".."] + sys.path[1:]
 
@@ -51,7 +50,10 @@ def run_migrations_offline():
 
     """
     context.configure(
-        url=get_app_settings().get_postgres_dsn, target_metadata=target_metadata, literal_binds=True, compare_type=True
+        url=get_app_settings().get_postgres_dsn,
+        target_metadata=target_metadata,
+        literal_binds=True,
+        compare_type=True,
     )
 
     with context.begin_transaction():

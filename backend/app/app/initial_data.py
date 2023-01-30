@@ -1,8 +1,7 @@
 import asyncio
 
-from loguru import logger
-
 from app.db.init_db import init_db
+from loguru import logger
 
 
 def main() -> None:

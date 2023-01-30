@@ -3,10 +3,9 @@ import sys
 from logging.handlers import RotatingFileHandler
 from typing import Any, Dict, List, Tuple
 
-from loguru import logger
-
 from app.core.logging import InterceptHandler
 from app.core.settings.base import BaseAppSettings
+from loguru import logger
 
 
 class AppSettings(BaseAppSettings):

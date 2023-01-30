@@ -1,6 +1,5 @@
-from celery import Celery
-
 from app.core.config import get_app_settings
+from celery import Celery
 
 celery_app = Celery("worker", broker=get_app_settings().get_rabbitmq_dsn)
 

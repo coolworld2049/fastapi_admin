@@ -30,5 +30,10 @@ celery
 raven
 faker
 pytest
+isort
+flake8
+autoflake
+black
+mypy
 pre-commit
 # aiogram>=3.0.0b6

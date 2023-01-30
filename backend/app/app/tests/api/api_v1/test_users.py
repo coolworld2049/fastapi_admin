@@ -3,15 +3,14 @@ import string
 from typing import Dict
 
 import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
-
 from app import crud, schemas
 from app.core.config import get_app_settings
 from app.models import UserRole
 from app.schemas.user import UserCreate
 from app.tests.test_data import fake
-from app.tests.utils.utils import random_email, gen_random_password
+from app.tests.utils.utils import gen_random_password, random_email
+from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
 
 
 async def creat_test_user(role: UserRole, username: str):

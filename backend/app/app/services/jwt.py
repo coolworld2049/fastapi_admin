@@ -1,12 +1,11 @@
 from datetime import datetime, timedelta
 from typing import Any, List, Union
 
+from app import schemas
+from app.core.config import get_app_settings
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from passlib.context import CryptContext
-
-from app import schemas
-from app.core.config import get_app_settings
 
 cryptContext = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2Scheme = OAuth2PasswordBearer(
