@@ -19,6 +19,7 @@ current_file = Path(__file__)
 current_file_dir = current_file.parent
 project_root = current_file_dir.parent
 project_root_absolute = project_root.resolve()
+project_static_path = project_root_absolute / "app/static"
 
 
 def get_application() -> FastAPI:
@@ -53,7 +54,7 @@ def get_application() -> FastAPI:
     custom_openapi(application)
     use_route_names_as_operation_ids(application)
 
-    application.mount("/static", StaticFiles(directory=project_root_absolute / "app/static"), name="static")
+    application.mount("/static", StaticFiles(directory=project_static_path), name="static")
 
     return application
 
@@ -63,4 +64,4 @@ app = get_application()
 
 @app.get("/")
 async def root(request: Request):
-    return FileResponse(path='./static/html/index.html')
+    return FileResponse(path=project_static_path / "html/index.html")
