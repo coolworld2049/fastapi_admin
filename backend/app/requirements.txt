@@ -30,4 +30,5 @@ celery
 raven
 faker
 pytest
+pre-commit
 # aiogram>=3.0.0b6
