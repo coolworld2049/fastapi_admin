@@ -14,7 +14,7 @@ class AppEnvTypes(Enum):
 
 
 class BaseAppSettings(BaseSettings):
-    APP_ENV: str = os.getenv("APP_ENV", AppEnvTypes.prod)
+    APP_ENV: str = os.getenv('APP_ENV', AppEnvTypes.prod)
     assert APP_ENV in [x.name for x in AppEnvTypes], ValueError()
     app_env: AppEnvTypes = APP_ENV
 

@@ -1,12 +1,13 @@
 from typing import Any, Optional, Sequence
 
+from sqlalchemy import and_, select, Row, RowMapping
+from sqlalchemy.engine import Result
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.crud.base import CRUDBase
 from app.models.user import User
 from app.schemas import RequestParams, UserCreate, UserUpdate
 from app.services.security import get_password_hash, verify_password
-from sqlalchemy import Row, RowMapping, and_, select
-from sqlalchemy.engine import Result
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):

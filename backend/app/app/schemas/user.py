@@ -2,10 +2,11 @@ import re
 from difflib import SequenceMatcher
 from typing import Optional
 
-from app.models.classifiers import UserRole
-from app.resources.reserved_username import reserved_usernames_list
 from loguru import logger
 from pydantic import BaseModel, EmailStr, Field, root_validator, validator
+
+from app.models.classifiers import UserRole
+from app.resources.reserved_username import reserved_usernames_list
 
 
 class UserValidator:

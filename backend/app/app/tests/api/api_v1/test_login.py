@@ -1,8 +1,9 @@
 from typing import Dict
 
 import pytest
-from app.core.config import get_app_settings
 from fastapi.testclient import TestClient
+
+from app.core.config import get_app_settings
 
 
 @pytest.mark.asyncio

@@ -1,7 +1,8 @@
-from app.core.config import get_app_settings
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 from fastapi.routing import APIRoute
+
+from app.core.config import get_app_settings
 
 
 def custom_openapi(app: FastAPI):

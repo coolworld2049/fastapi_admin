@@ -1,10 +1,11 @@
 from typing import Any
 
+from fastapi import APIRouter, Depends
+from pydantic.networks import EmailStr
+
 from app import models, schemas
 from app.api.dependencies import auth
 from app.core.celery_app import celery_app
-from fastapi import APIRouter, Depends
-from pydantic.networks import EmailStr
 
 router = APIRouter()
 

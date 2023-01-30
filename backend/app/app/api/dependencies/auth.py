@@ -1,10 +1,5 @@
 # noqa:WPS201
 
-from app import crud, schemas
-from app.api.dependencies import database
-from app.core.config import get_app_settings
-from app.models.user import User
-from app.services.jwt import oauth2Scheme
 from asyncpg import Connection
 from fastapi import Depends, HTTPException
 from fastapi.logger import logger
@@ -13,6 +8,12 @@ from sqlalchemy import text
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
+
+from app import crud, schemas
+from app.api.dependencies import database
+from app.core.config import get_app_settings
+from app.models.user import User
+from app.services.jwt import oauth2Scheme
 
 
 async def get_current_user(

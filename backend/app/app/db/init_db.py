@@ -1,12 +1,13 @@
 import pathlib
 
+from asyncpg import Connection
+from loguru import logger
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
+
 from app import crud, schemas
 from app.core.config import get_app_settings
 from app.db.session import Base, SessionLocal, engine, pg_database
 from app.models.classifiers import UserRole
-from asyncpg import Connection
-from loguru import logger
-from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
 
 
 async def execute_sql_files(path: pathlib.Path, conn: Connection):

@@ -1,11 +1,5 @@
 from pathlib import Path
 
-from app.api.api_v1.api import api_router
-from app.api.errors.http_error import http_error_handler
-from app.api.errors.validation_error import http422_error_handler
-from app.api.openapi import custom_openapi, use_route_names_as_operation_ids
-from app.core.config import get_app_settings
-from app.core.events import create_start_app_handler, create_stop_app_handler
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException
@@ -13,6 +7,13 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import FileResponse
 from starlette.staticfiles import StaticFiles
+
+from app.api.api_v1.api import api_router
+from app.api.errors.http_error import http_error_handler
+from app.api.errors.validation_error import http422_error_handler
+from app.api.openapi import custom_openapi, use_route_names_as_operation_ids
+from app.core.config import get_app_settings
+from app.core.events import create_start_app_handler, create_stop_app_handler
 
 current_file = Path(__file__)
 current_file_dir = current_file.parent
@@ -34,7 +35,7 @@ def get_application() -> FastAPI:
         allow_credentials=True,
         allow_methods=["*"],
         expose_headers=["Content-Range", "Range"],
-        allow_headers=["*", "Authorization", "Range", "Content-Type", "Content-Range"],
+        allow_headers=["*", "Authorization", "Range", 'Content-Type', "Content-Range"],
     )
     application.add_event_handler(
         "startup",
@@ -53,9 +54,7 @@ def get_application() -> FastAPI:
     custom_openapi(application)
     use_route_names_as_operation_ids(application)
 
-    application.mount(
-        "/static", StaticFiles(directory=project_static_path), name="static"
-    )
+    application.mount("/static", StaticFiles(directory=project_static_path), name="static")
 
     return application
 

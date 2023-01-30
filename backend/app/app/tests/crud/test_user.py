@@ -1,11 +1,12 @@
 import pytest
+from fastapi.encoders import jsonable_encoder
+from sqlalchemy.orm import Session
+
 from app import crud
 from app.models import UserRole
 from app.schemas.user import UserCreate, UserUpdate
 from app.services.security import verify_password
-from app.tests.utils.utils import gen_random_password, random_email
-from fastapi.encoders import jsonable_encoder
-from sqlalchemy.orm import Session
+from app.tests.utils.utils import random_email, gen_random_password
 
 
 @pytest.mark.asyncio
@@ -24,9 +25,7 @@ async def test_authenticate_user(db: Session) -> None:
     password = gen_random_password()
     user_in = UserCreate(email=email, password=password, username=username)
     user = await crud.user.create(db, obj_in=user_in)
-    authenticated_user = await crud.user.authenticate(
-        db, email=email, password=password
-    )
+    authenticated_user = await crud.user.authenticate(db, email=email, password=password)
     assert authenticated_user
     assert user.email == authenticated_user.email
 
