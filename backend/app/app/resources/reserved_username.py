@@ -1,4 +1,4 @@
-usernames = [
+reserved_usernames_list = [
     "0",
     "about",
     "access",

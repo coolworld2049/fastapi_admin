@@ -2,14 +2,16 @@ from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 from fastapi.routing import APIRoute
 
+from app.core.config import get_app_settings
+
 
 def custom_openapi(app: FastAPI):
     if app.openapi_schema:
         return app.openapi_schema
     openapi_schema = get_openapi(
-        title="fastapi-react-crm-backend",
+        title=get_app_settings().APP_NAME,
         version="1.0.0",
-        description="OpenAPI schema",
+        description="Custom OpenAPI schema",
         routes=app.routes,
     )
     openapi_schema["info"]["x-logo"] = {

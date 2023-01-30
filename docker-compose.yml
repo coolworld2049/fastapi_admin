@@ -4,13 +4,11 @@ services:
 
   db:
     image: postgres:15
+    env_file:
+      - .env
     environment:
-      - POSTGRES_USER=${PG_SUPERUSER}
-      - POSTGRES_PASSWORD=${PG_SUPERUSER_PASSWORD}
-      - POSTGRES_DB=${PG_DB}
       - PGPORT=${PG_PORT}
       - PGTZ=${TZ}
-      - TZ=${TZ}
     ports:
       - ${PG_PORT}:${PG_PORT}
 
@@ -22,41 +20,37 @@ services:
     env_file:
       - .env
     environment:
+      - PG_HOST=db
+      - RABBITMQ_HOST=queue
       - SERVER_NAME=${DOMAIN}
       - SERVER_HOST=https://${DOMAIN}
-      - PORT=8000
-      - WORKERS_PER_CORE=1
-      - MAX_WORKERS=4
-      - DATABASE_URL=postgresql://${PG_SUPERUSER}:${PG_SUPERUSER_PASSWORD}@${PG_HOST}:${PG_PORT}/${PG_DB}
     depends_on:
       - db
     ports:
-      - "8000:8000"
+      - ${PORT}:${PORT}
 
 
   queue:
     image: rabbitmq:3-management
+    env_file:
+      - .env
     environment:
-      - RABBITMQ_DEFAULT_USER=admin
-      - RABBITMQ_DEFAULT_PASS=admin
+      - RABBITMQ_HOST=queue
     ports:
-      # AMQP protocol port
-      - '5672:5672'
-      # HTTP management UI
-      - '15672:15672'
+      - ${RABBITMQ_PORT}:${RABBITMQ_PORT}
+      - ${RABBITMQ_HTTP_PORT}:${RABBITMQ_HTTP_PORT}
 
   celeryworker:
     build:
       context: backend
       dockerfile: celeryworker.dockerfile
-      args:
-        INSTALL_DEV: ${INSTALL_DEV-false}
     depends_on:
       - db
       - queue
     env_file:
       - .env
     environment:
+      - PG_HOST=db
+      - RABBITMQ_HOST=queue
       - SERVER_NAME=${DOMAIN?Variable not set}
       - SERVER_HOST=https://${DOMAIN?Variable not set}
-      - DATABASE_URL=postgresql://${PG_SUPERUSER}:${PG_SUPERUSER_PASSWORD}@${PG_HOST}:${PG_PORT}/${PG_DB}

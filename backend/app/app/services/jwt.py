@@ -10,7 +10,7 @@ from app.core.config import get_app_settings
 
 cryptContext = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2Scheme = OAuth2PasswordBearer(
-    tokenUrl=f"{get_app_settings().API_V1}/login/access-token"
+    tokenUrl=f"{get_app_settings().api_v1}/login/access-token"
 )
 
 

@@ -6,7 +6,7 @@ from loguru import logger
 from app.core.settings.app import AppSettings
 
 
-# noinspection PyUnusedLocal
+
 def create_start_app_handler(
     app: FastAPI,
     settings: AppSettings,
@@ -17,7 +17,7 @@ def create_start_app_handler(
     return start_app
 
 
-# noinspection PyUnusedLocal
+
 def create_stop_app_handler(app: FastAPI) -> Callable:  # type: ignore
     @logger.catch
     async def stop_app() -> None:

@@ -44,7 +44,7 @@ def send_email(
 
 
 def send_test_email(email_to: str) -> None:
-    project_name = get_app_settings().PROJECT_NAME
+    project_name = get_app_settings().APP_NAME
     subject = f"{project_name} - Test email"
     with open(Path(get_app_settings().EMAIL_TEMPLATES_DIR) / "test_email.html") as f:
         template_str = f.read()
@@ -53,14 +53,14 @@ def send_test_email(email_to: str) -> None:
         subject_template=subject,
         html_template=template_str,
         environment={
-            "project_name": get_app_settings().PROJECT_NAME,
+            "project_name": get_app_settings().APP_NAME,
             "email": email_to,
         },
     )
 
 
 def send_reset_password_email(email_to: str, email: str, token: str) -> None:
-    project_name = get_app_settings().PROJECT_NAME
+    project_name = get_app_settings().APP_NAME
     subject = f"{project_name} - Password recovery for user {email}"
     with open(
         Path(get_app_settings().EMAIL_TEMPLATES_DIR) / "reset_password.html"
@@ -73,7 +73,7 @@ def send_reset_password_email(email_to: str, email: str, token: str) -> None:
         subject_template=subject,
         html_template=template_str,
         environment={
-            "project_name": get_app_settings().PROJECT_NAME,
+            "project_name": get_app_settings().APP_NAME,
             "username": email,
             "email": email_to,
             "valid_hours": get_app_settings().EMAIL_RESET_TOKEN_EXPIRE_HOURS,
@@ -83,7 +83,7 @@ def send_reset_password_email(email_to: str, email: str, token: str) -> None:
 
 
 def send_new_account_email(email_to: str, username: str, password: str) -> None:
-    project_name = get_app_settings().PROJECT_NAME
+    project_name = get_app_settings().APP_NAME
     subject = f"{project_name} - New account for user {username}"
     with open(Path(get_app_settings().EMAIL_TEMPLATES_DIR) / "new_account.html") as f:
         template_str = f.read()
@@ -93,7 +93,7 @@ def send_new_account_email(email_to: str, username: str, password: str) -> None:
         subject_template=subject,
         html_template=template_str,
         environment={
-            "project_name": get_app_settings().PROJECT_NAME,
+            "project_name": get_app_settings().APP_NAME,
             "username": username,
             "password": password,
             "email": email_to,
