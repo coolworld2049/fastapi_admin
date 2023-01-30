@@ -14,7 +14,6 @@ from app.models.user import User
 router = APIRouter()
 
 
-# noinspection PyUnusedLocal
 @router.get("/", response_model=List[schemas.User])
 async def read_users(
     response: Response,
@@ -34,7 +33,6 @@ async def read_users(
     return users
 
 
-# noinspection PyUnusedLocal
 @router.post("/", response_model=schemas.User)
 async def create_user(
     *,
@@ -82,7 +80,6 @@ async def update_user_me(
     return user
 
 
-# noinspection PyUnusedLocal
 @router.get("/me", response_model=schemas.User)
 async def read_user_me(
     response: Response,
@@ -97,7 +94,6 @@ async def read_user_me(
     return user
 
 
-# noinspection PyUnusedLocal
 @router.get("/{id}", response_model=schemas.User)
 async def read_user_by_id(
     id: int,
@@ -105,13 +101,12 @@ async def read_user_by_id(
     db: AsyncSession = Depends(database.get_session),
 ) -> Any:
     """
-    Get a specific user by id.
+    Get a specific user.
     """
     user = await crud.user.get(db, id)
     return user
 
 
-# noinspection PyUnusedLocal
 @router.put("/{id}", response_model=schemas.User)
 async def update_user(
     *,
@@ -133,7 +128,6 @@ async def update_user(
     return user
 
 
-# noinspection PyUnusedLocal
 @router.delete("/{id}", response_model=schemas.User)
 async def delete_user(
     *,
@@ -142,24 +136,20 @@ async def delete_user(
     current_user: models.User = Depends(auth.get_current_active_user),
 ) -> Any:
     """
-    Delete an task.
+    Delete user.
     """
-    item = await crud.user.get(db, id)
-    if not item:
+    user = await crud.user.get(db, id)
+    if not user:
         raise HTTPException(status_code=404, detail="Item not found")
-    if item.is_active:
+    if user.is_active:
         raise HTTPException(status_code=404, detail="Acive user cannot be removed")
-    if item.is_superuser:
+    if user.is_superuser:
         raise HTTPException(status_code=404, detail="Superuser cannot be removed")
 
-    item = await crud.user.remove(db=db, id=id)
-    return item
+    user = await crud.user.remove(db=db, id=id)
+    return user
 
 
-# ----------------------------------------------------------------------------------------------------------------------
-
-
-# noinspection PyUnusedLocal
 @router.get("/role/{rolname}", response_model=List[schemas.User])
 async def read_users_by_role_id(
     response: Response,
@@ -183,27 +173,4 @@ async def read_users_by_role_id(
     response.headers[
         "Content-Range"
     ] = f"{request_params.skip}-{request_params.skip + len(user)}/{total}"
-    return user
-
-
-# noinspection PyUnusedLocal
-@router.put("/role/{rolname}/{id}", response_model=schemas.User)
-async def update_user_by_role(
-    *,
-    id: int = Query(None),
-    rolname: str = Query(None),
-    db: AsyncSession = Depends(database.get_session),
-    user_in: schemas.UserUpdate,
-    current_user: models.User = Depends(auth.get_current_active_superuser),
-) -> Any:
-    """
-    Update a user by role.
-    """
-    user = await crud.user.get_by_id(db, id=id)
-    if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="The user with this username does not exist in the system",
-        )
-    user = await crud.user.update(db, db_obj=user, obj_in=user_in)
     return user

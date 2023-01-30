@@ -10,7 +10,7 @@ def test_celery_worker_test(
 ) -> None:
     data = {"msg": "tests"}
     r = client.post(
-        f"{get_app_settings().API_V1}/utils/tests-celery/",
+        f"{get_app_settings().api_v1}/utils/tests-celery/",
         json=data,
         headers=superuser_token_headers,
     )

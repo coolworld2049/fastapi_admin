@@ -1,6 +1,5 @@
 from __future__ import with_statement
 
-import os
 import sys
 from logging.config import fileConfig
 
@@ -8,6 +7,8 @@ from alembic import context
 from loguru import logger
 from sqlalchemy import engine_from_config, pool
 from sqlalchemy.exc import ProgrammingError
+
+from app.core.config import get_app_settings
 
 sys.path = ["", ".."] + sys.path[1:]
 
@@ -18,7 +19,7 @@ from app.db.base import Base  # noqa
 config = context.config
 
 # Interpret the config file for Python logging.
-# This line sets up loggers basically.
+# This line sets up LOGGERS basically.
 fileConfig(config.config_file_name)
 
 # add your model's MetaData object here
@@ -37,10 +38,6 @@ target_metadata = Base.metadata
 # ... etc.
 
 
-def get_url():
-    return os.getenv("DATABASE_URL")
-
-
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
 
@@ -53,9 +50,8 @@ def run_migrations_offline():
     script output.
 
     """
-    url = get_url()
     context.configure(
-        url=url, target_metadata=target_metadata, literal_binds=True, compare_type=True
+        url=get_app_settings().get_postgres_dsn, target_metadata=target_metadata, literal_binds=True, compare_type=True
     )
 
     with context.begin_transaction():
@@ -70,7 +66,7 @@ def run_migrations_online():
 
     """
     configuration = config.get_section(config.config_ini_section)
-    configuration["sqlalchemy.url"] = get_url()
+    configuration["sqlalchemy.url"] = get_app_settings().get_postgres_dsn
     connectable = engine_from_config(
         configuration,
         prefix="sqlalchemy.",

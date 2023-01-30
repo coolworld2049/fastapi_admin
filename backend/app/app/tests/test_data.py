@@ -14,20 +14,9 @@ from app.db.init_db import init_db
 from app.db.session import Base, SessionLocal, engine, pg_database
 from app.models.classifiers import UserRole
 from app.models.user import User
+from app.tests.utils.utils import gen_random_password
 
 fake: Faker = Faker()
-
-
-def gen_rand_password(number: int, rnd_str_length: int = 4):
-    r_str = "".join(
-        random.choice(string.ascii_letters) for _ in range(rnd_str_length)
-    ).capitalize()
-    return (
-        f"{''.join(random.choice(string.ascii_letters) for _ in range(rnd_str_length)).capitalize()}"
-        f"{r_str}{number}{number * 2}"
-        f"{''.join(random.choice(string.ascii_letters) for _ in range(rnd_str_length)).capitalize()}"
-        f"{random.choice(['!', '@', '#', '$', '&', '*'])}"
-    )
 
 
 @pytest.mark.asyncio
@@ -68,7 +57,7 @@ async def test_init_db():
 
             user_in = schemas.UserCreate(
                 email=f"{role}{us}@gmail.com",
-                password=gen_rand_password(us),
+                password=gen_random_password(us),
                 username=f"{role}{us}{random.randint(1000, 10000)}",
                 full_name=fake.name(),
                 age=random.randint(18, 25),

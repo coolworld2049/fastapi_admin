@@ -4,7 +4,6 @@ from logging.handlers import RotatingFileHandler
 from typing import Any, Dict, List, Tuple
 
 from loguru import logger
-from pydantic import PostgresDsn
 
 from app.core.logging import InterceptHandler
 from app.core.settings.base import BaseAppSettings
@@ -12,6 +11,7 @@ from app.core.settings.base import BaseAppSettings
 
 class AppSettings(BaseAppSettings):
     docs_url: str = "/docs"
+    api_v1: str = "/api/v1"
     openapi_prefix: str = ""
     openapi_url: str = "/openapi.json"
     redoc_url: str = "/redoc"
@@ -19,10 +19,13 @@ class AppSettings(BaseAppSettings):
     version: str = "0.0.0"
 
     APP_NAME: str
-    DOMAIN: str
-    DOMAIN_PORT: int
+    TZ: str
     DEBUG: bool
 
+    DOMAIN: str
+    PORT: int
+
+    BACKEND_CORS_ORIGINS: List[str]
     SECRET_KEY: str
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
@@ -30,39 +33,23 @@ class AppSettings(BaseAppSettings):
     FIRST_SUPERUSER_EMAIL: str
     FIRST_SUPERUSER_PASSWORD: str
 
-    TZ: str
-
     PG_HOST: str
     PG_PORT: int
-    PG_DB: str
-    PG_SCHEMA: str
-    PG_SUPERUSER: str
-    PG_SUPERUSER_PASSWORD: str
-    DATABASE_URL: PostgresDsn
+    POSTGRES_DB: str
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
 
-    # SENTRY_DSN: str
-
-    REDIS_HOST: str
-    REDIS_PORT: int
-    REDIS_DB: int
-    REDIS_POOL: int
+    RABBITMQ_HOST: str
+    RABBITMQ_PORT: int
+    RABBITMQ_HTTP_PORT: int
+    RABBITMQ_DEFAULT_USER: str
+    RABBITMQ_DEFAULT_PASS: str
 
     BOT_TOKEN: str
 
-    # CELERY_BROKER_URL: str = os.environ.get("CELERY_BROKER_URL", "redis://127.0.0.1:6379/0")
-    # CELERY_RESULT_BACKEND: str = os.environ.get("CELERY_RESULT_BACKEND", "redis://127.0.0.1:6379/0")
-
-    API_V1: str = "/api/v1"
-    LOGGING_LEVEL: int | str = logging.DEBUG
-
-    loggers: Tuple[str, str] = ("uvicorn.asgi", "uvicorn.access")
-
-    log_file_max_bytes = 314572800
-
-    max_connection_count: int = 10
-    min_connection_count: int = 10
-
-    allowed_hosts: List[str] = ["*"]
+    LOGGING_LEVEL: str = "INFO"
+    LOGGERS: Tuple[str, str] = ("uvicorn.asgi", "uvicorn.access")
+    LOG_FILE_MAX_BYTES = 314572800
 
     class Config:
         validate_assignment = True
@@ -79,15 +66,23 @@ class AppSettings(BaseAppSettings):
             "version": self.version,
         }
 
+    @property
+    def get_postgres_dsn(self):
+        return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.PG_HOST}:{self.PG_PORT}/{self.POSTGRES_DB}"
+
+    @property
+    def get_rabbitmq_dsn(self):
+        return f"amqp://{self.RABBITMQ_DEFAULT_USER}:{self.RABBITMQ_DEFAULT_PASS}@{self.RABBITMQ_HOST}:{self.RABBITMQ_PORT}/"
+
     def configure_logging(self) -> None:
         logging.getLogger().handlers = [InterceptHandler()]
-        for logger_name in self.loggers:
+        for logger_name in self.LOGGERS:
             logging_logger = logging.getLogger(logger_name)
             logging_logger.handlers = [
                 InterceptHandler(level=self.LOGGING_LEVEL),
                 RotatingFileHandler(
-                    "access.log", maxBytes=self.log_file_max_bytes, backupCount=1
+                    "access.log", maxBytes=self.LOG_FILE_MAX_BYTES, backupCount=1
                 ),
             ]
 
-        logger.configure(handlers=[{"sink": sys.stderr, "level": self.LOGGING_LEVEL}])
+        logger.configure(handlers=[{"sink": sys.stdout, "level": self.LOGGING_LEVEL}])

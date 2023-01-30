@@ -3,14 +3,15 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.ext.asyncio import (AsyncEngine, AsyncSession,
                                     create_async_engine)
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
 from app.core.config import get_app_settings
 
-Base = declarative_base()
+Base: DeclarativeBase = declarative_base()
+
 
 engine: AsyncEngine = create_async_engine(
-    get_app_settings().DATABASE_URL.replace("postgresql", "postgresql+asyncpg"),
+    get_app_settings().get_postgres_dsn.replace("postgresql", "postgresql+asyncpg"),
     future=True,
     echo=False,
     json_serializer=jsonable_encoder,
@@ -26,4 +27,4 @@ SessionLocal = sessionmaker(  # noqa
     autoflush=False,
 )
 
-pg_database = Database(get_app_settings().DATABASE_URL)
+pg_database = Database(get_app_settings().get_postgres_dsn)

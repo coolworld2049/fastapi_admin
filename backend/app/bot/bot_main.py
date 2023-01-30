@@ -23,7 +23,7 @@ logging.basicConfig(
     handlers=[
         InterceptHandler(),
         RotatingFileHandler(
-            "access.log", maxBytes=get_app_settings().log_file_max_bytes, backupCount=1
+            "access.log", maxBytes=get_app_settings().LOG_FILE_MAX_BYTES, backupCount=1
         ),
     ],
 )
