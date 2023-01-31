@@ -3,10 +3,9 @@ import sys
 from logging.handlers import RotatingFileHandler
 from typing import Any, Dict, List, Tuple
 
-from loguru import logger
-
 from app.core.logging import InterceptHandler
 from app.core.settings.base import BaseAppSettings
+from loguru import logger
 
 
 class AppSettings(BaseAppSettings):
@@ -45,6 +44,9 @@ class AppSettings(BaseAppSettings):
     RABBITMQ_DEFAULT_USER: str
     RABBITMQ_DEFAULT_PASS: str
 
+    REDIS_HOST: str
+    REDIS_PORT: int
+
     BOT_TOKEN: str
 
     LOGGING_LEVEL: str = "INFO"
@@ -72,7 +74,11 @@ class AppSettings(BaseAppSettings):
 
     @property
     def get_rabbitmq_dsn(self):
-        return f"amqp://{self.RABBITMQ_DEFAULT_USER}:{self.RABBITMQ_DEFAULT_PASS}@{self.RABBITMQ_HOST}:{self.RABBITMQ_PORT}/"
+        return f"pyamqp://{self.RABBITMQ_DEFAULT_USER}:{self.RABBITMQ_DEFAULT_PASS}@{self.RABBITMQ_HOST}:{self.RABBITMQ_PORT}/"
+
+    @property
+    def get_redis_dsn(self):
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/"
 
     def configure_logging(self) -> None:
         logging.getLogger().handlers = [InterceptHandler()]

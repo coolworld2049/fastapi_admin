@@ -4,17 +4,16 @@ import string
 import time
 
 import pytest
-from asyncpg import Connection, UndefinedFunctionError
-from faker import Faker
-from loguru import logger
-from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
-
 from app import crud, schemas
 from app.db.init_db import init_db
 from app.db.session import Base, SessionLocal, engine, pg_database
 from app.models.classifiers import UserRole
 from app.models.user import User
 from app.tests.utils.utils import gen_random_password
+from asyncpg import Connection, UndefinedFunctionError
+from faker import Faker
+from loguru import logger
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
 
 fake: Faker = Faker()
 

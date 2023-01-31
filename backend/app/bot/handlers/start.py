@@ -1,7 +1,12 @@
 from aiogram import Bot, Router
 from aiogram.filters import Command
-from aiogram.types import (InlineKeyboardButton, InlineKeyboardMarkup,
-                           MenuButtonWebApp, Message, WebAppInfo)
+from aiogram.types import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    MenuButtonWebApp,
+    Message,
+    WebAppInfo,
+)
 
 router = Router()
 

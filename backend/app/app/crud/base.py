@@ -1,14 +1,12 @@
-from typing import (Any, Dict, Generic, Optional, Type, TypeVar,
-                    Union, Sequence)
-
-from pydantic import BaseModel
-from sqlalchemy import select, func, Row, RowMapping
-from sqlalchemy.engine import Result
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql import Select
+from typing import Any, Dict, Generic, Optional, Sequence, Type, TypeVar, Union
 
 from app.db.session import Base
 from app.schemas import RequestParams
+from pydantic import BaseModel
+from sqlalchemy import Row, RowMapping, func, select
+from sqlalchemy.engine import Result
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql import Select
 
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)

@@ -1,11 +1,9 @@
+from app.core.config import get_app_settings
 from asyncpg_utils.databases import Database
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy.ext.asyncio import (AsyncEngine, AsyncSession,
-                                    create_async_engine)
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, DeclarativeBase
-
-from app.core.config import get_app_settings
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 Base: DeclarativeBase = declarative_base()
 

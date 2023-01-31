@@ -2,13 +2,12 @@ import asyncio
 from typing import Dict, Generator
 
 import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
-
 from app.core.config import get_app_settings
 from app.db.session import SessionLocal
 from app.tests.utils.user import authentication_token_from_email
 from app.tests.utils.utils import get_superuser_token_headers
+from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
 
 
 @pytest.fixture(scope="session")
@@ -31,6 +30,8 @@ def superuser_token_headers(client: TestClient) -> Dict[str, str]:
 
 @pytest.fixture(scope="module")
 def normal_user_token_headers(client: TestClient, db: Session) -> Dict[str, str]:
-    return asyncio.run(authentication_token_from_email(
-        client=client, email=get_app_settings().FIRST_SUPERUSER_EMAIL, db=db
-    ))
+    return asyncio.run(
+        authentication_token_from_email(
+            client=client, email=get_app_settings().FIRST_SUPERUSER_EMAIL, db=db
+        )
+    )

@@ -27,8 +27,9 @@ sqlalchemy_views
 sqlalchemy-stubs
 alembic
 celery
+redis
 raven
 faker
 pytest
-pre-commit
+pytest-cov
 # aiogram>=3.0.0b6

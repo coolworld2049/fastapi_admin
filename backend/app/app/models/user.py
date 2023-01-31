@@ -1,10 +1,16 @@
-from sqlalchemy import (Boolean, CheckConstraint, Column, SmallInteger, String,
-                        Text, text)
-from sqlalchemy.dialects.postgresql import ENUM
-
 from app.models import TimestampsMixin
 from app.models.base import BaseDbModel
 from app.models.classifiers import UserRole
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    Column,
+    SmallInteger,
+    String,
+    Text,
+    text,
+)
+from sqlalchemy.dialects.postgresql import ENUM
 
 
 class User(BaseDbModel, TimestampsMixin):

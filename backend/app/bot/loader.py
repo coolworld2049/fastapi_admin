@@ -1,8 +1,7 @@
 from aiogram import Bot, Dispatcher
-from bot.handlers import start
-
 from app.core.config import get_app_settings
 from app.db.session import SessionLocal
+from bot.handlers import start
 
 bot = Bot(token=get_app_settings().BOT_TOKEN)
 dispatcher = Dispatcher()

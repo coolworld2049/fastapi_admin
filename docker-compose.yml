@@ -21,6 +21,7 @@ services:
       - .env
     environment:
       - PG_HOST=db
+      - REDIS_HOST=redis
       - RABBITMQ_HOST=queue
       - SERVER_NAME=${DOMAIN}
       - SERVER_HOST=https://${DOMAIN}
@@ -40,6 +41,12 @@ services:
       - ${RABBITMQ_PORT}:${RABBITMQ_PORT}
       - ${RABBITMQ_HTTP_PORT}:${RABBITMQ_HTTP_PORT}
 
+  redis:
+    restart: unless-stopped
+    image: redis:latest
+    expose:
+      - ${REDIS_PORT}
+
   celeryworker:
     build:
       context: backend
@@ -47,10 +54,12 @@ services:
     depends_on:
       - db
       - queue
+      - redis
     env_file:
       - .env
     environment:
       - PG_HOST=db
+      - REDIS_HOST=redis
       - RABBITMQ_HOST=queue
       - SERVER_NAME=${DOMAIN?Variable not set}
       - SERVER_HOST=https://${DOMAIN?Variable not set}

@@ -1,15 +1,14 @@
 from typing import Any, List
 
+from app import crud, models, schemas
+from app.api.dependencies import auth, database, params
+from app.models.classifiers import UserRole
+from app.models.user import User
 from fastapi import APIRouter, Body, Depends, HTTPException, Response
 from fastapi.encoders import jsonable_encoder
 from fastapi.params import Query
 from pydantic.networks import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from app import crud, models, schemas
-from app.api.dependencies import auth, database, params
-from app.models.classifiers import UserRole
-from app.models.user import User
 
 router = APIRouter()
 
