@@ -2,15 +2,19 @@ version: '3.9'
 
 services:
 
+
   db:
     image: postgres:15
     env_file:
       - .env
     environment:
-      - PGPORT=${PG_PORT}
-      - PGTZ=${TZ}
+      - PGPORT=${PG_PORT:-5432}
+      - PGTZ=${TZ:-UTC}
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
     ports:
       - ${PG_PORT}:${PG_PORT}
+
 
   app:
     build:
@@ -27,6 +31,8 @@ services:
       - SERVER_HOST=https://${DOMAIN}
     depends_on:
       - db
+    volumes:
+      - ./app:/app
     ports:
       - ${PORT}:${PORT}
 
@@ -41,11 +47,29 @@ services:
       - ${RABBITMQ_PORT}:${RABBITMQ_PORT}
       - ${RABBITMQ_HTTP_PORT}:${RABBITMQ_HTTP_PORT}
 
+
+  flower:
+    image: mher/flower
+    environment:
+      - CELERY_BROKER_URL=pyamqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@queue:${RABBITMQ_PORT}/
+      - FLOWER_PORT=5555
+    ports:
+      - ${FLOWER_PORT}:${FLOWER_PORT}
+    depends_on:
+      - queue
+
+
   redis:
-    restart: unless-stopped
-    image: redis:latest
+    image: redislabs/redismod
     expose:
       - ${REDIS_PORT}
+
+
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    ports:
+      - ${REDIS_INSIGHT_PORT}:${REDIS_INSIGHT_PORT}
+
 
   celeryworker:
     build:
@@ -63,3 +87,23 @@ services:
       - RABBITMQ_HOST=queue
       - SERVER_NAME=${DOMAIN?Variable not set}
       - SERVER_HOST=https://${DOMAIN?Variable not set}
+
+
+  grafana:
+    image: grafana/grafana:latest
+    env_file:
+      - .env
+    ports:
+      - ${GF_PORT}:${GF_PORT}
+
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        FRONTEND_ENV: ${FRONTEND_ENV-production}
+
+volumes:
+  postgres-data:
+  grafana-data:
+    external: true

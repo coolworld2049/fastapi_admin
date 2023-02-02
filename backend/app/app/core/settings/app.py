@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import logging
 import sys
 from logging.handlers import RotatingFileHandler
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 from app.core.logging import InterceptHandler
 from app.core.settings.base import BaseAppSettings
@@ -12,7 +14,7 @@ class AppSettings(BaseAppSettings):
     docs_url: str = "/docs"
     api_v1: str = "/api/v1"
     openapi_prefix: str = ""
-    openapi_url: str = "/openapi.json"
+    openapi_url: str = f"{api_v1}/openapi.json"
     redoc_url: str = "/redoc"
     title: str = "fastapi_admin"
     version: str = "0.0.0"
@@ -24,7 +26,7 @@ class AppSettings(BaseAppSettings):
     DOMAIN: str
     PORT: int
 
-    BACKEND_CORS_ORIGINS: List[str]
+    BACKEND_CORS_ORIGINS: list[str]
     SECRET_KEY: str
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
@@ -50,14 +52,14 @@ class AppSettings(BaseAppSettings):
     BOT_TOKEN: str
 
     LOGGING_LEVEL: str = "INFO"
-    LOGGERS: Tuple[str, str] = ("uvicorn.asgi", "uvicorn.access")
+    LOGGERS: tuple[str, str] = ("uvicorn.asgi", "uvicorn.access")
     LOG_FILE_MAX_BYTES = 314572800
 
     class Config:
         validate_assignment = True
 
     @property
-    def fastapi_kwargs(self) -> Dict[str, Any]:
+    def fastapi_kwargs(self) -> dict[str, Any]:
         return {
             "debug": self.DEBUG,
             "docs_url": self.docs_url,
@@ -87,7 +89,9 @@ class AppSettings(BaseAppSettings):
             logging_logger.handlers = [
                 InterceptHandler(level=self.LOGGING_LEVEL),
                 RotatingFileHandler(
-                    "access.log", maxBytes=self.LOG_FILE_MAX_BYTES, backupCount=1
+                    "access.log",
+                    maxBytes=self.LOG_FILE_MAX_BYTES,
+                    backupCount=1,
                 ),
             ]
 
