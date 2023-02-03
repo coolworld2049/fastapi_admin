@@ -1,6 +1,7 @@
-from celery import Celery
+from __future__ import annotations
 
 from app.core.config import get_app_settings
+from celery import Celery
 
 celery_app = Celery(
     "worker",
