@@ -1,12 +1,19 @@
+from __future__ import annotations
+
 import pathlib
 
-from app import crud, schemas
+from app import crud
+from app import schemas
 from app.core.config import get_app_settings
-from app.db.session import Base, SessionLocal, engine, pg_database
-from app.models.classifiers import UserRole
+from app.db.session import Base
+from app.db.session import engine
+from app.db.session import pg_database
+from app.db.session import SessionLocal
+from app.models.domain.user_role import UserRole
 from asyncpg import Connection
 from loguru import logger
-from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncConnection
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def execute_sql_files(path: pathlib.Path, conn: Connection):
@@ -29,7 +36,8 @@ async def create_all_models():
 
 async def create_first_superuser(db: AsyncSession):
     super_user = await crud.user.get_by_email(
-        db, email=get_app_settings().FIRST_SUPERUSER_EMAIL
+        db,
+        email=get_app_settings().FIRST_SUPERUSER_EMAIL,
     )
     if not super_user:
         user_in_admin = schemas.UserCreate(
@@ -51,7 +59,7 @@ async def init_db():
     await create_all_models()
     conn: Connection = await pg_database.get_connection()
     for sql_f in pathlib.Path(
-        pathlib.Path(__file__).parent.__str__() + "/sql"
+        pathlib.Path(__file__).parent.__str__() + "/sql",
     ).iterdir():
         if not sql_f.is_dir():
             await execute_sql_files(sql_f, conn)

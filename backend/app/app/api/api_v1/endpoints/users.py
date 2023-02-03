@@ -1,10 +1,21 @@
-from typing import Any, List
+from __future__ import annotations
 
-from app import crud, models, schemas
-from app.api.dependencies import auth, database, params
-from app.models.classifiers import UserRole
-from app.models.user import User
-from fastapi import APIRouter, Body, Depends, HTTPException, Response
+from typing import Any
+from typing import List
+
+from app import crud
+from app import models
+from app import schemas
+from app.api.dependencies import auth
+from app.api.dependencies import database
+from app.api.dependencies import params
+from app.models.domain.user import User
+from app.models.domain.user_role import UserRole
+from fastapi import APIRouter
+from fastapi import Body
+from fastapi import Depends
+from fastapi import HTTPException
+from fastapi import Response
 from fastapi.encoders import jsonable_encoder
 from fastapi.params import Query
 from pydantic.networks import EmailStr
@@ -19,7 +30,7 @@ async def read_users(
     db: AsyncSession = Depends(database.get_session),
     current_user: models.User = Depends(auth.get_current_active_user),
     request_params: schemas.RequestParams = Depends(
-        params.parse_react_admin_params(User)
+        params.parse_react_admin_params(User),
     ),
 ) -> Any:
     """
@@ -156,7 +167,7 @@ async def read_users_by_role_id(
     db: AsyncSession = Depends(database.get_session),
     current_user: models.User = Depends(auth.get_current_active_user),
     request_params: schemas.RequestParams = Depends(
-        params.parse_react_admin_params(User)
+        params.parse_react_admin_params(User),
     ),
 ) -> Any:
     """

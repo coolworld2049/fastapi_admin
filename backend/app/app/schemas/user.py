@@ -1,11 +1,17 @@
+from __future__ import annotations
+
 import re
 from difflib import SequenceMatcher
 from typing import Optional
 
-from app.models.classifiers import UserRole
+from app.models.domain.user_role import UserRole
 from app.resources.reserved_username import reserved_usernames_list
 from loguru import logger
-from pydantic import BaseModel, EmailStr, Field, root_validator, validator
+from pydantic import BaseModel
+from pydantic import EmailStr
+from pydantic import Field
+from pydantic import root_validator
+from pydantic import validator
 
 
 class UserValidator:
@@ -24,19 +30,24 @@ class UserValidator:
 
         assert re.match(cls.email_exp, values.get("email")), "Invalid email"
         assert re.match(
-            cls.username_exp, values.get("username")
+            cls.username_exp,
+            values.get("username"),
         ), "Invalid characters in username"
         if values.get("username") and values.get("password") and values.get("email"):
             assert (
                 SequenceMatcher(
-                    None, values.get("username"), values.get("password")
+                    None,
+                    values.get("username"),
+                    values.get("password"),
                 ).ratio()
                 < 0.6
             ), "Password must not match username"
             try:
                 assert (
                     SequenceMatcher(
-                        None, values.get("password"), values.get("email").split("@")[0]
+                        None,
+                        values.get("password"),
+                        values.get("email").split("@")[0],
                     ).ratio()
                     < 0.4
                 ), "Password must not match email"
@@ -67,7 +78,7 @@ class UserValidator:
 
 class UserBase(BaseModel, UserValidator):
     email: Optional[EmailStr]
-    role: Optional[UserRole] = Field(UserRole.anon)
+    role: Optional[UserRole] = Field(UserRole.user.name)
     username: Optional[str]
     full_name: Optional[str]
     age: Optional[int] = None

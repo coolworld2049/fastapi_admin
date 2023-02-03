@@ -20,6 +20,6 @@ environments: Dict[AppEnvTypes, Type[AppSettings]] = {
 
 @lru_cache
 def get_app_settings() -> AppSettings:
-    app_env = BaseAppSettings().APP_ENV
+    app_env: AppEnvTypes = BaseAppSettings().APP_ENV
     config = environments[app_env]
     return config()

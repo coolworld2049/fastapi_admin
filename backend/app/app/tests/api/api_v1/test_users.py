@@ -1,14 +1,18 @@
+from __future__ import annotations
+
 import random
 import string
 from typing import Dict
 
 import pytest
-from app import crud, schemas
+from app import crud
+from app import schemas
 from app.core.config import get_app_settings
 from app.models import UserRole
 from app.schemas.user import UserCreate
 from app.tests.test_data import fake
-from app.tests.utils.utils import gen_random_password, random_email
+from app.tests.utils.utils import gen_random_password
+from app.tests.utils.utils import random_email
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
@@ -28,10 +32,12 @@ async def creat_test_user(role: UserRole, username: str):
 
 @pytest.mark.asyncio
 async def test_get_users_superuser_me(
-    client: TestClient, superuser_token_headers: Dict[str, str]
+    client: TestClient,
+    superuser_token_headers: Dict[str, str],
 ) -> None:
     r = client.get(
-        f"{get_app_settings().api_v1}/users/me", headers=superuser_token_headers
+        f"{get_app_settings().api_v1}/users/me",
+        headers=superuser_token_headers,
     )
     current_user = r.json()
     assert current_user
@@ -41,10 +47,12 @@ async def test_get_users_superuser_me(
 
 @pytest.mark.asyncio
 async def test_get_users_normal_user_me(
-    client: TestClient, normal_user_token_headers: Dict[str, str]
+    client: TestClient,
+    normal_user_token_headers: Dict[str, str],
 ) -> None:
     r = client.get(
-        f"{get_app_settings().api_v1}/users/me", headers=normal_user_token_headers
+        f"{get_app_settings().api_v1}/users/me",
+        headers=normal_user_token_headers,
     )
     current_user = r.json()
     assert current_user
@@ -54,7 +62,9 @@ async def test_get_users_normal_user_me(
 
 @pytest.mark.asyncio
 async def test_create_user_new_email(
-    client: TestClient, superuser_token_headers: dict, db: Session
+    client: TestClient,
+    superuser_token_headers: dict,
+    db: Session,
 ) -> None:
     email = random_email()
     password = gen_random_password()
@@ -73,7 +83,9 @@ async def test_create_user_new_email(
 
 @pytest.mark.asyncio
 async def test_get_existing_user(
-    client: TestClient, superuser_token_headers: dict, db: Session
+    client: TestClient,
+    superuser_token_headers: dict,
+    db: Session,
 ) -> None:
     email = random_email()
     password = gen_random_password()
@@ -93,7 +105,9 @@ async def test_get_existing_user(
 
 @pytest.mark.asyncio
 async def test_create_user_existing_username(
-    client: TestClient, superuser_token_headers: dict, db: Session
+    client: TestClient,
+    superuser_token_headers: dict,
+    db: Session,
 ) -> None:
     email = random_email()
     # username = email
@@ -113,7 +127,8 @@ async def test_create_user_existing_username(
 
 @pytest.mark.asyncio
 async def test_create_user_by_normal_user(
-    client: TestClient, normal_user_token_headers: Dict[str, str]
+    client: TestClient,
+    normal_user_token_headers: Dict[str, str],
 ) -> None:
     email = random_email()
     password = gen_random_password()
@@ -128,20 +143,23 @@ async def test_create_user_by_normal_user(
 
 @pytest.mark.asyncio
 async def test_retrieve_users(
-    client: TestClient, superuser_token_headers: dict, db: Session
+    client: TestClient,
+    superuser_token_headers: dict,
+    db: Session,
 ) -> None:
     email = random_email()
     password = gen_random_password()
-    user_in = UserCreate(email=email, password=password, role=UserRole.anon)
+    user_in = UserCreate(email=email, password=password, role=UserRole.user.name)
     await crud.user.create(db, obj_in=user_in)
 
     email2 = random_email()
     password2 = gen_random_password()
-    user_in2 = UserCreate(email=email2, password=password2, role=UserRole.anon)
+    user_in2 = UserCreate(email=email2, password=password2, role=UserRole.user.name)
     await crud.user.create(db, obj_in=user_in2)
 
     r = client.get(
-        f"{get_app_settings().api_v1}/users/", headers=superuser_token_headers
+        f"{get_app_settings().api_v1}/users/",
+        headers=superuser_token_headers,
     )
     all_users = r.json()
 

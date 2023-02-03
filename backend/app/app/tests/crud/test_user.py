@@ -1,9 +1,13 @@
+from __future__ import annotations
+
 import pytest
 from app import crud
 from app.models import UserRole
-from app.schemas.user import UserCreate, UserUpdate
+from app.schemas.user import UserCreate
+from app.schemas.user import UserUpdate
 from app.services.security import verify_password
-from app.tests.utils.utils import gen_random_password, random_email
+from app.tests.utils.utils import gen_random_password
+from app.tests.utils.utils import random_email
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
@@ -12,7 +16,7 @@ from sqlalchemy.orm import Session
 async def test_create_user(db: Session) -> None:
     email = random_email()
     password = gen_random_password()
-    user_in = UserCreate(email=email, password=password, role=UserRole.anon)
+    user_in = UserCreate(email=email, password=password, role=UserRole.user.name)
     user = await crud.user.create(db, obj_in=user_in)
     assert user.email == email
     assert hasattr(user, "hashed_password")
@@ -25,7 +29,9 @@ async def test_authenticate_user(db: Session) -> None:
     user_in = UserCreate(email=email, password=password, username=username)
     user = await crud.user.create(db, obj_in=user_in)
     authenticated_user = await crud.user.authenticate(
-        db, email=email, password=password
+        db,
+        email=email,
+        password=password,
     )
     assert authenticated_user
     assert user.email == authenticated_user.email

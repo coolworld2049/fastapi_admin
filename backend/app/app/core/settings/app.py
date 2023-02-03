@@ -80,7 +80,7 @@ class AppSettings(BaseAppSettings):
 
     @property
     def get_redis_dsn(self):
-        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/"
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/0"
 
     def configure_logging(self) -> None:
         logging.getLogger().handlers = [InterceptHandler()]

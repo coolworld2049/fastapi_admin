@@ -103,6 +103,16 @@ services:
       args:
         FRONTEND_ENV: ${FRONTEND_ENV-production}
 
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - ${PORT}:80
+    depends_on:
+      - app
+      - frontend
+
 volumes:
   postgres-data:
   grafana-data:

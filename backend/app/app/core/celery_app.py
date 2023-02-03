@@ -9,4 +9,4 @@ celery_app = Celery(
     backend=get_app_settings().get_redis_dsn,
 )
 
-celery_app.conf.task_routes = {"app.worker.test_celery": "main-queue"}
+celery_app.conf.task_routes = {"app.worker.*": "main-queue"}

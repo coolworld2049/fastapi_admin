@@ -1,10 +1,20 @@
-from typing import Any, Optional, Sequence
+from __future__ import annotations
+
+from collections.abc import Sequence
+from typing import Any
+from typing import Optional
 
 from app.crud.base import CRUDBase
-from app.models.user import User
-from app.schemas import RequestParams, UserCreate, UserUpdate
-from app.services.security import get_password_hash, verify_password
-from sqlalchemy import Row, RowMapping, and_, select
+from app.models.domain.user import User
+from app.schemas import RequestParams
+from app.schemas import UserCreate
+from app.schemas import UserUpdate
+from app.services.security import get_password_hash
+from app.services.security import verify_password
+from sqlalchemy import and_
+from sqlalchemy import Row
+from sqlalchemy import RowMapping
+from sqlalchemy import select
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -20,7 +30,11 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return db_obj
 
     async def update(
-        self, db: AsyncSession, *, db_obj: User, obj_in: UserUpdate | dict[str, Any]
+        self,
+        db: AsyncSession,
+        *,
+        db_obj: User,
+        obj_in: UserUpdate | dict[str, Any],
     ) -> User:
         if isinstance(obj_in, dict):
             update_data = obj_in
@@ -35,7 +49,11 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
     # noinspection PyMethodMayBeStatic
     async def get_by_id(
-        self, db: AsyncSession, *, id: int, role: str = None
+        self,
+        db: AsyncSession,
+        *,
+        id: int,
+        role: str = None,
     ) -> Optional[User]:
         q = select(User)
         if role:
@@ -91,10 +109,6 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     # noinspection PyMethodMayBeStatic,PyShadowingNames
     def is_superuser(self, user: User) -> bool:
         return user.is_superuser
-
-    # noinspection PyMethodMayBeStatic,PyShadowingNames
-    def is_online(self, user: User) -> bool:
-        return user.is_online
 
 
 user = CRUDUser(User)

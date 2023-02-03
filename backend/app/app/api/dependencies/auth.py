@@ -1,14 +1,18 @@
 # noqa:WPS201
+from __future__ import annotations
 
-from app import crud, schemas
+from app import crud
+from app import schemas
 from app.api.dependencies import database
 from app.core.config import get_app_settings
-from app.models.user import User
+from app.models.domain.user import User
 from app.services.jwt import oauth2Scheme
 from asyncpg import Connection
-from fastapi import Depends, HTTPException
+from fastapi import Depends
+from fastapi import HTTPException
 from fastapi.logger import logger
-from jose import JWTError, jwt
+from jose import jwt
+from jose import JWTError
 from sqlalchemy import text
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,7 +20,8 @@ from starlette import status
 
 
 async def get_current_user(
-    db: AsyncSession = Depends(database.get_session), token: str = Depends(oauth2Scheme)
+    db: AsyncSession = Depends(database.get_session),
+    token: str = Depends(oauth2Scheme),
 ) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -64,13 +69,14 @@ async def check_rolname(db: AsyncSession, db_user: str, current_user: User):
         raise HTTPException(400, "username not valid")
     check_q = """select rolname from pg_roles where rolname = :db_user"""
     check_q_result: Result = await db.execute(
-        text(check_q), {"db_user": db_user.lower()}
+        text(check_q),
+        {"db_user": db_user.lower()},
     )
 
     check_result = check_q_result.fetchall()
     if get_app_settings().DEBUG:
         logger.info(
-            f"check_rolname: {f'{db_user} role exist' if check_result else f'{db_user} role not exist'}"
+            f"check_rolname: {f'{db_user} role exist' if check_result else f'{db_user} role not exist'}",
         )
     return check_result
 
@@ -134,6 +140,7 @@ async def get_current_active_superuser(
 ) -> User:
     if not current_user.is_superuser:
         raise HTTPException(
-            status_code=400, detail="The user doesn't have enough privileges"
+            status_code=400,
+            detail="The user doesn't have enough privileges",
         )
     return current_user
