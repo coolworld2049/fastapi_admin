@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 from types import FrameType
 from typing import cast

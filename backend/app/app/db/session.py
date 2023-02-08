@@ -14,7 +14,7 @@ Base: DeclarativeBase = declarative_base()
 
 
 engine: AsyncEngine = create_async_engine(
-    get_app_settings().get_postgres_dsn.replace("postgresql", "postgresql+asyncpg"),
+    get_app_settings().get_postgres_dsn.replace('postgresql', 'postgresql+asyncpg'),
     future=True,
     echo=False,
     json_serializer=jsonable_encoder,

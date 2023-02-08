@@ -1,4 +1,7 @@
-from typing import Any, Optional
+from __future__ import annotations
+
+from typing import Any
+from typing import Optional
 
 from pydantic.main import BaseModel
 

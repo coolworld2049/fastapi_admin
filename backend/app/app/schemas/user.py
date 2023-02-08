@@ -4,7 +4,7 @@ import re
 from difflib import SequenceMatcher
 from typing import Optional
 
-from app.models.domain.user_role import UserRole
+from app.models.user.role import UserRole
 from app.resources.reserved_username import reserved_usernames_list
 from loguru import logger
 from pydantic import BaseModel
@@ -15,64 +15,64 @@ from pydantic import validator
 
 
 class UserValidator:
-    password_exp = r"^(?=.*[A-Z].*[A-Z])(?=.*[!@#$&*])(?=.*[0-9].*[0-9])(?=.*[a-z].*[a-z].*[a-z]).{11,}$"
-    email_exp = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"
-    username_exp = "[A-Za-z_0-9]*"
+    password_exp = r'^(?=.*[A-Z].*[A-Z])(?=.*[!@#$&*])(?=.*[0-9].*[0-9])(?=.*[a-z].*[a-z].*[a-z]).{11,}$'
+    email_exp = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+    username_exp = '[A-Za-z_0-9]*'
 
     @root_validator()
     def validate_all(cls, values):
         try:
-            assert values.get("email")
-            assert values.get("role")
-            assert values.get("username")
+            assert values.get('email')
+            assert values.get('role')
+            assert values.get('username')
         except AssertionError as e:
             logger.error(e.args)
 
-        assert re.match(cls.email_exp, values.get("email")), "Invalid email"
+        assert re.match(cls.email_exp, values.get('email')), 'Invalid email'
         assert re.match(
             cls.username_exp,
-            values.get("username"),
-        ), "Invalid characters in username"
-        if values.get("username") and values.get("password") and values.get("email"):
+            values.get('username'),
+        ), 'Invalid characters in username'
+        if values.get('username') and values.get('password') and values.get('email'):
             assert (
                 SequenceMatcher(
                     None,
-                    values.get("username"),
-                    values.get("password"),
+                    values.get('username'),
+                    values.get('password'),
                 ).ratio()
                 < 0.6
-            ), "Password must not match username"
+            ), 'Password must not match username'
             try:
                 assert (
                     SequenceMatcher(
                         None,
-                        values.get("password"),
-                        values.get("email").split("@")[0],
+                        values.get('password'),
+                        values.get('email').split('@')[0],
                     ).ratio()
                     < 0.4
-                ), "Password must not match email"
+                ), 'Password must not match email'
             except AssertionError as e:
                 logger.error(e.args)
         return values
 
-    @validator("username")
+    @validator('username')
     def validate_username(cls, value):  # noqa
-        assert value not in reserved_usernames_list, "This username is reserved"
+        assert value not in reserved_usernames_list, 'This username is reserved'
         return value
 
-    @validator("password")
+    @validator('password')
     def validate_password(cls, value):  # noqa
         assert re.match(cls.password_exp, value), (
-            "Make sure the password is: 11 characters long,"
-            " 2 uppercase and 3 lowercase letters, 1 special char, 2 numbers"
+            'Make sure the password is: 11 characters long,'
+            ' 2 uppercase and 3 lowercase letters, 1 special char, 2 numbers'
         )
         return value
 
-    @validator("phone")
+    @validator('phone')
     def validate_phone(cls, v):  # noqa
-        regex = r"^(\+)[1-9][0-9\-\(\)\.]{9,15}$"
+        regex = r'^(\+)[1-9][0-9\-\(\)\.]{9,15}$'
         if v and not re.search(regex, v, re.I):
-            raise ValueError("Phone Number Invalid.")
+            raise ValueError('Phone Number Invalid.')
         return v
 
 
@@ -117,6 +117,6 @@ class UserInDB(UserInDBBase):
 class User(UserInDBBase):
     class Config:
         fields = {
-            "is_superuser": {"exclude": True},
-            "hashed_password": {"exclude": True},
+            'is_superuser': {'exclude': True},
+            'hashed_password': {'exclude': True},
         }

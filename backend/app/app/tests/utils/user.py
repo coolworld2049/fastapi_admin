@@ -4,7 +4,7 @@ from typing import Dict
 
 from app import crud
 from app.core.config import get_app_settings
-from app.models.domain.user import User
+from app.models.user.user import User
 from app.schemas.user import UserCreate
 from app.schemas.user import UserUpdate
 from app.tests.utils.utils import gen_random_password
@@ -19,12 +19,12 @@ def user_authentication_headers(
     email: str,
     password: str,
 ) -> Dict[str, str]:
-    data = {"username": email, "password": password}
+    data = {'username': email, 'password': password}
 
-    r = client.post(f"{get_app_settings().api_v1}/login/access-token", data=data)
+    r = client.post(f'{get_app_settings().api_v1}/login/access-token', data=data)
     response = r.json()
-    auth_token = response["access_token"]
-    headers = {"Authorization": f"Bearer {auth_token}"}
+    auth_token = response['access_token']
+    headers = {'Authorization': f'Bearer {auth_token}'}
     return headers
 
 

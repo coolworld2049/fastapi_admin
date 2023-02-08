@@ -1,8 +1,6 @@
 import {
   Admin,
   CustomRoutes,
-  EditGuesser,
-  ListGuesser,
   Resource,
   ShowGuesser,
 } from "react-admin";

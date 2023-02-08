@@ -1,10 +1,17 @@
+from __future__ import annotations
+
 import json
+from collections.abc import Callable
 from datetime import datetime
-from typing import Any, Callable, Optional
+from typing import Any
+from typing import Optional
 
 from app.schemas import RequestParams
-from fastapi import HTTPException, Query
-from sqlalchemy import and_, asc, desc
+from fastapi import HTTPException
+from fastapi import Query
+from sqlalchemy import and_
+from sqlalchemy import asc
+from sqlalchemy import desc
 from sqlalchemy.orm import DeclarativeMeta
 
 
@@ -16,19 +23,19 @@ def parse_react_admin_params(
     def inner(
         sort_: Optional[str] = Query(
             None,
-            alias="sort",
+            alias='sort',
             description='Format: `["field_name", "direction"]`',
             example='["id", "ASC"]',
         ),
         range_: Optional[str] = Query(
             None,
-            alias="range",
-            description="Format: `[start, end]`",
-            example="[0, 10]",
+            alias='range',
+            description='Format: `[start, end]`',
+            example='[0, 10]',
         ),
         filter_: Optional[str] = Query(
             None,
-            alias="filter",
+            alias='filter',
             description='Format: `{"id": 0}`',
         ),
     ):
@@ -40,12 +47,12 @@ def parse_react_admin_params(
         order_by = desc(model.id)
         if sort_:
             sort_column, sort_order = json.loads(sort_)
-            if sort_order.lower() == "asc":
+            if sort_order.lower() == 'asc':
                 direction = asc
-            elif sort_order.lower() == "desc":
+            elif sort_order.lower() == 'desc':
                 direction = desc
             else:
-                raise HTTPException(400, f"Invalid sort direction {sort_order}")
+                raise HTTPException(400, f'Invalid sort direction {sort_order}')
             order_by = direction(model.__table__.c[sort_column])
         filter_by = None
         if filter_:
@@ -53,21 +60,21 @@ def parse_react_admin_params(
             if len(ft) > 0:
                 fb = []
                 filter_dict: dict = dict(
-                    filter(lambda it: str(it[0]).isdigit() is False, ft.items())
+                    filter(lambda it: str(it[0]).isdigit() is False, ft.items()),
                 )
                 for k, v in filter_dict.items():
                     if v is None:
                         fb.append(model.__table__.c[k] == None)  # noqa
                     elif isinstance(v, str):
-                        if k:  # in classifiers.pg_custom_type_colnames
+                        if k:  # in enums.pg_custom_type_colnames
                             fb.append(model.__table__.c[k] == v)
                         else:
-                            if str(k).split("_")[-1] == "date":
+                            if str(k).split('_')[-1] == 'date':
                                 fb.append(
-                                    model.__table__.c[k] >= datetime.fromisoformat(v)
+                                    model.__table__.c[k] >= datetime.fromisoformat(v),
                                 )
                             else:
-                                fb.append(model.__table__.c[k].ilike(f"{v}%"))
+                                fb.append(model.__table__.c[k].ilike(f'{v}%'))
                     elif isinstance(v, int):
                         fb.append(model.__table__.c[k] == v)
                     elif isinstance(v, list) and isinstance(v[0], list):
@@ -77,12 +84,12 @@ def parse_react_admin_params(
                             v = [int(x) for x in v]
                         fb.append(model.__table__.c[k].in_(tuple(v)))
                     else:
-                        raise HTTPException(400, f"Invalid filters {filter_dict}")
+                        raise HTTPException(400, f'Invalid filters {filter_dict}')
                 if len(fb) > 0:
                     filter_by = and_(*fb)
 
         return RequestParams(
-            skip=skip, limit=limit, order_by=order_by, filter_by=filter_by
+            skip=skip, limit=limit, order_by=order_by, filter_by=filter_by,
         )
 
     return inner

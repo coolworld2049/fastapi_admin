@@ -1,4 +1,6 @@
-from typing import Callable
+from __future__ import annotations
+
+from collections.abc import Callable
 
 from app.core.settings.app import AppSettings
 from fastapi import FastAPI

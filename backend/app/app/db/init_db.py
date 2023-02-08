@@ -9,7 +9,7 @@ from app.db.session import Base
 from app.db.session import engine
 from app.db.session import pg_database
 from app.db.session import SessionLocal
-from app.models.domain.user_role import UserRole
+from app.models.user.role import UserRole
 from asyncpg import Connection
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncConnection
@@ -18,11 +18,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 async def execute_sql_files(path: pathlib.Path, conn: Connection):
     try:
-        with open(path, encoding="utf-8") as rf:
+        with open(path, encoding='utf-8') as rf:
             res = await conn.execute(rf.read())
-            logger.info(f"{path.name}: {res}")
+            logger.info(f'{path.name}: {res}')
     except Exception as e:
-        logger.info(f"{path.name}: {e.args}")
+        logger.info(f'{path.name}: {e.args}')
 
 
 async def create_all_models():
@@ -44,14 +44,14 @@ async def create_first_superuser(db: AsyncSession):
             email=get_app_settings().FIRST_SUPERUSER_EMAIL,
             password=get_app_settings().FIRST_SUPERUSER_PASSWORD,
             is_superuser=True,
-            full_name="No Name",
+            full_name='No Name',
             username=get_app_settings().FIRST_SUPERUSER_USERNAME,
             role=UserRole.admin.name,
         )
         super_user = await crud.user.create(db, obj_in=user_in_admin)
-        logger.info("created")
+        logger.info('created')
     else:
-        logger.info("first superuser already exists")
+        logger.info('first superuser already exists')
     return super_user
 
 
@@ -59,7 +59,7 @@ async def init_db():
     await create_all_models()
     conn: Connection = await pg_database.get_connection()
     for sql_f in pathlib.Path(
-        pathlib.Path(__file__).parent.__str__() + "/sql",
+        pathlib.Path(__file__).parent.__str__() + '/sql',
     ).iterdir():
         if not sql_f.is_dir():
             await execute_sql_files(sql_f, conn)

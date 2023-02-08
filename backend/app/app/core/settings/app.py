@@ -11,13 +11,13 @@ from loguru import logger
 
 
 class AppSettings(BaseAppSettings):
-    docs_url: str = "/docs"
-    api_v1: str = "/api/v1"
-    openapi_prefix: str = ""
-    openapi_url: str = f"{api_v1}/openapi.json"
-    redoc_url: str = "/redoc"
-    title: str = "fastapi_admin"
-    version: str = "0.0.0"
+    docs_url: str = '/docs'
+    api_v1: str = '/api/v1'
+    openapi_prefix: str = ''
+    openapi_url: str = f'{api_v1}/openapi.json'
+    redoc_url: str = '/redoc'
+    title: str = 'fastapi_admin'
+    version: str = '0.0.0'
 
     APP_NAME: str
     TZ: str
@@ -51,8 +51,8 @@ class AppSettings(BaseAppSettings):
 
     BOT_TOKEN: str
 
-    LOGGING_LEVEL: str = "INFO"
-    LOGGERS: tuple[str, str] = ("uvicorn.asgi", "uvicorn.access")
+    LOGGING_LEVEL: str = 'INFO'
+    LOGGERS: tuple[str, str] = ('uvicorn.asgi', 'uvicorn.access')
     LOG_FILE_MAX_BYTES = 314572800
 
     class Config:
@@ -61,26 +61,26 @@ class AppSettings(BaseAppSettings):
     @property
     def fastapi_kwargs(self) -> dict[str, Any]:
         return {
-            "debug": self.DEBUG,
-            "docs_url": self.docs_url,
-            "openapi_prefix": self.openapi_prefix,
-            "openapi_url": self.openapi_url,
-            "redoc_url": self.redoc_url,
-            "title": self.title,
-            "version": self.version,
+            'debug': self.DEBUG,
+            'docs_url': self.docs_url,
+            'openapi_prefix': self.openapi_prefix,
+            'openapi_url': self.openapi_url,
+            'redoc_url': self.redoc_url,
+            'title': self.title,
+            'version': self.version,
         }
 
     @property
     def get_postgres_dsn(self):
-        return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.PG_HOST}:{self.PG_PORT}/{self.POSTGRES_DB}"
+        return f'postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.PG_HOST}:{self.PG_PORT}/{self.POSTGRES_DB}'
 
     @property
     def get_rabbitmq_dsn(self):
-        return f"pyamqp://{self.RABBITMQ_DEFAULT_USER}:{self.RABBITMQ_DEFAULT_PASS}@{self.RABBITMQ_HOST}:{self.RABBITMQ_PORT}/"
+        return f'pyamqp://{self.RABBITMQ_DEFAULT_USER}:{self.RABBITMQ_DEFAULT_PASS}@{self.RABBITMQ_HOST}:{self.RABBITMQ_PORT}/'
 
     @property
     def get_redis_dsn(self):
-        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/0"
+        return f'redis://{self.REDIS_HOST}:{self.REDIS_PORT}/0'
 
     def configure_logging(self) -> None:
         logging.getLogger().handlers = [InterceptHandler()]
@@ -89,10 +89,10 @@ class AppSettings(BaseAppSettings):
             logging_logger.handlers = [
                 InterceptHandler(level=self.LOGGING_LEVEL),
                 RotatingFileHandler(
-                    "access.log",
+                    'access.log',
                     maxBytes=self.LOG_FILE_MAX_BYTES,
                     backupCount=1,
                 ),
             ]
 
-        logger.configure(handlers=[{"sink": sys.stdout, "level": self.LOGGING_LEVEL}])
+        logger.configure(handlers=[{'sink': sys.stdout, 'level': self.LOGGING_LEVEL}])

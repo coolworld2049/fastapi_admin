@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from app.core.config import get_app_settings
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
@@ -9,12 +11,12 @@ def custom_openapi(app: FastAPI):
         return app.openapi_schema
     openapi_schema = get_openapi(
         title=get_app_settings().APP_NAME,
-        version="1.0.0",
-        description="Custom OpenAPI schema",
+        version='1.0.0',
+        description='Custom OpenAPI schema',
         routes=app.routes,
     )
-    openapi_schema["info"]["x-logo"] = {
-        "url": "https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png"
+    openapi_schema['info']['x-logo'] = {
+        'url': 'https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png',
     }
     app.openapi_schema = openapi_schema
     return app.openapi_schema
@@ -31,6 +33,6 @@ def use_route_names_as_operation_ids(app: FastAPI) -> None:
     for route in app.routes:
         if isinstance(route, APIRoute):
             if route.name in route_names:
-                raise Exception("Route function names should be unique")
+                raise Exception('Route function names should be unique')
             route.operation_id = route.name
             route_names.add(route.name)

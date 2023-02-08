@@ -9,8 +9,8 @@ from app import schemas
 from app.api.dependencies import auth
 from app.api.dependencies import database
 from app.api.dependencies import params
-from app.models.domain.user import User
-from app.models.domain.user_role import UserRole
+from app.models.user.role import UserRole
+from app.models.user.user import User
 from fastapi import APIRouter
 from fastapi import Body
 from fastapi import Depends
@@ -24,7 +24,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.User])
+@router.get('/', response_model=List[schemas.User])
 async def read_users(
     response: Response,
     db: AsyncSession = Depends(database.get_session),
@@ -38,12 +38,12 @@ async def read_users(
     """
     users, total = await crud.user.get_multi(db, request_params)
     response.headers[
-        "Content-Range"
-    ] = f"{request_params.skip}-{request_params.skip + len(users)}/{total}"
+        'Content-Range'
+    ] = f'{request_params.skip}-{request_params.skip + len(users)}/{total}'
     return users
 
 
-@router.post("/", response_model=schemas.User)
+@router.post('/', response_model=schemas.User)
 async def create_user(
     *,
     db: AsyncSession = Depends(database.get_session),
@@ -58,18 +58,18 @@ async def create_user(
     if user:
         raise HTTPException(
             status_code=400,
-            detail="The user with this username already exists in the system.",
+            detail='The user with this username already exists in the system.',
         )
     if not current_user.is_superuser:
         raise HTTPException(
             status_code=403,
-            detail="privelegies error",
+            detail='privelegies error',
         )
     new_user = await crud.user.create(db, obj_in=user_in)
     return new_user
 
 
-@router.put("/me", response_model=schemas.User)
+@router.put('/me', response_model=schemas.User)
 async def update_user_me(
     *,
     db: AsyncSession = Depends(database.get_session),
@@ -90,7 +90,7 @@ async def update_user_me(
     return user
 
 
-@router.get("/me", response_model=schemas.User)
+@router.get('/me', response_model=schemas.User)
 async def read_user_me(
     response: Response,
     db: AsyncSession = Depends(database.get_session),
@@ -100,11 +100,11 @@ async def read_user_me(
     Get current user.
     """
     user = await crud.user.get(db, current_user.id)
-    response.headers["Content-Range"] = f"{0}-{1}/{1}"
+    response.headers['Content-Range'] = f'{0}-{1}/{1}'
     return user
 
 
-@router.get("/{id}", response_model=schemas.User)
+@router.get('/{id}', response_model=schemas.User)
 async def read_user_by_id(
     id: int,
     current_user: models.User = Depends(auth.get_current_active_user),
@@ -117,7 +117,7 @@ async def read_user_by_id(
     return user
 
 
-@router.put("/{id}", response_model=schemas.User)
+@router.put('/{id}', response_model=schemas.User)
 async def update_user(
     *,
     id: int,
@@ -132,13 +132,13 @@ async def update_user(
     if not user:
         raise HTTPException(
             status_code=404,
-            detail="The user with this username does not exist in the system",
+            detail='The user with this username does not exist in the system',
         )
     user = await crud.user.update(db, db_obj=user, obj_in=user_in)
     return user
 
 
-@router.delete("/{id}", response_model=schemas.User)
+@router.delete('/{id}', response_model=schemas.User)
 async def delete_user(
     *,
     id: int,
@@ -150,17 +150,17 @@ async def delete_user(
     """
     user = await crud.user.get(db, id)
     if not user:
-        raise HTTPException(status_code=404, detail="Item not found")
+        raise HTTPException(status_code=404, detail='Item not found')
     if user.is_active:
-        raise HTTPException(status_code=404, detail="Acive user cannot be removed")
+        raise HTTPException(status_code=404, detail='Acive user cannot be removed')
     if user.is_superuser:
-        raise HTTPException(status_code=404, detail="Superuser cannot be removed")
+        raise HTTPException(status_code=404, detail='Superuser cannot be removed')
 
     user = await crud.user.remove(db=db, id=id)
     return user
 
 
-@router.get("/role/{rolname}", response_model=List[schemas.User])
+@router.get('/role/{rolname}', response_model=List[schemas.User])
 async def read_users_by_role_id(
     response: Response,
     rolname: str = Query(None),
@@ -178,9 +178,9 @@ async def read_users_by_role_id(
     if rolname in UserRole.to_list():
         roles = [rolname]
     elif not roles:
-        raise HTTPException(404, "role not set")
+        raise HTTPException(404, 'role not set')
     user, total = await crud.user.get_multi_with_role(db, request_params, roles)
     response.headers[
-        "Content-Range"
-    ] = f"{request_params.skip}-{request_params.skip + len(user)}/{total}"
+        'Content-Range'
+    ] = f'{request_params.skip}-{request_params.skip + len(user)}/{total}'
     return user

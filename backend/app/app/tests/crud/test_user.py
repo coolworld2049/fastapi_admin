@@ -19,7 +19,7 @@ async def test_create_user(db: Session) -> None:
     user_in = UserCreate(email=email, password=password, role=UserRole.user.name)
     user = await crud.user.create(db, obj_in=user_in)
     assert user.email == email
-    assert hasattr(user, "hashed_password")
+    assert hasattr(user, 'hashed_password')
 
 
 @pytest.mark.asyncio

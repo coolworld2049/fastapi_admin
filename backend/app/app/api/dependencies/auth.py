@@ -5,7 +5,7 @@ from app import crud
 from app import schemas
 from app.api.dependencies import database
 from app.core.config import get_app_settings
-from app.models.domain.user import User
+from app.models.user.user import User
 from app.services.jwt import oauth2Scheme
 from asyncpg import Connection
 from fastapi import Depends
@@ -25,18 +25,18 @@ async def get_current_user(
 ) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
+        detail='Could not validate credentials',
+        headers={'WWW-Authenticate': 'Bearer'},
     )
     try:
         payload = jwt.decode(
             token,
             get_app_settings().SECRET_KEY,
             algorithms=[get_app_settings().ALGORITHM],
-            options={"verify_aud": False},
+            options={'verify_aud': False},
         )
-        subject: str = payload.get("sub")
-        scopes: str = payload.get("scopes")
+        subject: str = payload.get('sub')
+        scopes: str = payload.get('scopes')
         if not subject:
             raise credentials_exception
         token_data = schemas.TokenPayload(sub=subject, scopes=scopes)
@@ -64,13 +64,13 @@ async def get_current_user(
 
 async def check_rolname(db: AsyncSession, db_user: str, current_user: User):
     if not current_user.is_active:
-        raise HTTPException(400, "user is not active")
+        raise HTTPException(400, 'user is not active')
     if not current_user.username == db_user:
-        raise HTTPException(400, "username not valid")
+        raise HTTPException(400, 'username not valid')
     check_q = """select rolname from pg_roles where rolname = :db_user"""
     check_q_result: Result = await db.execute(
         text(check_q),
-        {"db_user": db_user.lower()},
+        {'db_user': db_user.lower()},
     )
 
     check_result = check_q_result.fetchall()
@@ -86,14 +86,14 @@ async def create_user_in_role(db: AsyncSession, current_user: User, db_user: str
         """select create_user_in_role(:db_user, :hashed_password, :role)"""
     )
     params = {
-        "db_user": db_user.lower(),
-        "hashed_password": current_user.hashed_password,
-        "role": current_user.role,
+        'db_user': db_user.lower(),
+        'hashed_password': current_user.hashed_password,
+        'role': current_user.role,
     }
     await db.execute(text(create_db_user_q), params=params)
     await db.commit()
     if get_app_settings().DEBUG:
-        logger.info(f"CREATE_user_in_role: {create_db_user_q}")
+        logger.info(f'CREATE_user_in_role: {create_db_user_q}')
 
 
 async def drop_user_in_role(db: AsyncSession | Connection, db_user: str):
@@ -103,27 +103,27 @@ async def drop_user_in_role(db: AsyncSession | Connection, db_user: str):
     elif isinstance(db, AsyncSession):
         await db.execute(text(drop_db_user_q))
     if get_app_settings().DEBUG:
-        logger.info(f"DROP_user_in_role: {db_user}")
+        logger.info(f'DROP_user_in_role: {db_user}')
 
 
 async def get_session_user(db: AsyncSession):
     check_session_role_q = """select session_user, current_user"""
     check_session_role_q_result: Result = await db.execute(text(check_session_role_q))
     if get_app_settings().DEBUG:
-        logger.info(f"get_session_user: {check_session_role_q_result.scalar()}")
+        logger.info(f'get_session_user: {check_session_role_q_result.scalar()}')
 
 
 async def set_session_user(db: AsyncSession, db_user: str):
     set_db_user_q = """set session authorization """ + db_user.lower()
     if get_app_settings().DEBUG:
-        logger.info(f"SET_session_user: {db_user}")
+        logger.info(f'SET_session_user: {db_user}')
     await db.execute(text(set_db_user_q))
 
 
 async def reset_session_user(db: AsyncSession):
     reset_q = """reset session authorization"""
     if get_app_settings().DEBUG:
-        logger.info(f"RESET_session_user")
+        logger.info(f'RESET_session_user')
     await db.execute(text(reset_q))
 
 
@@ -131,7 +131,7 @@ async def get_current_active_user(
     current_user: User = Depends(get_current_user),
 ) -> User:
     if not current_user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(status_code=400, detail='Inactive user')
     return current_user
 
 

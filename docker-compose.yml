@@ -2,7 +2,6 @@ version: '3.9'
 
 services:
 
-
   db:
     image: postgres:15
     env_file:
@@ -16,7 +15,7 @@ services:
       - ${PG_PORT}:${PG_PORT}
 
 
-  app:
+  backend:
     build:
       context: backend
       dockerfile: backend.dockerfile
@@ -85,8 +84,8 @@ services:
       - PG_HOST=db
       - REDIS_HOST=redis
       - RABBITMQ_HOST=queue
-      - SERVER_NAME=${DOMAIN?Variable not set}
-      - SERVER_HOST=https://${DOMAIN?Variable not set}
+      - SERVER_NAME=${DOMAIN}
+      - SERVER_HOST=https://${DOMAIN}
 
 
   grafana:
@@ -100,18 +99,27 @@ services:
   frontend:
     build:
       context: ./frontend
-      args:
-        FRONTEND_ENV: ${FRONTEND_ENV-production}
+      dockerfile: frontend.dockerfile
+    env_file:
+      - .env
+    depends_on:
+      - backend
+    command: >
+      yarn start
+    
+   
+
 
   nginx:
     image: nginx:latest
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     ports:
       - ${PORT}:80
     depends_on:
-      - app
+      - backend
       - frontend
+
 
 volumes:
   postgres-data:

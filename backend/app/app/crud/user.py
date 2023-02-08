@@ -5,7 +5,7 @@ from typing import Any
 from typing import Optional
 
 from app.crud.base import CRUDBase
-from app.models.domain.user import User
+from app.models import User
 from app.schemas import RequestParams
 from app.schemas import UserCreate
 from app.schemas import UserUpdate
@@ -22,7 +22,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     async def create(self, db: AsyncSession, *, obj_in: UserCreate) -> User:
         create_data: dict = obj_in.dict()
-        create_data.pop("password")
+        create_data.pop('password')
         db_obj = User(**create_data)  # noqa
         db_obj.hashed_password = get_password_hash(obj_in.password)
         db.add(db_obj)
@@ -40,10 +40,10 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             update_data = obj_in
         else:
             update_data = obj_in.dict(exclude_unset=True)
-        if update_data.get("password"):
-            update_data.pop("password")
+        if update_data.get('password'):
+            update_data.pop('password')
             # noinspection PyUnresolvedReferences
-            update_data.update({"hashed_password": get_password_hash(obj_in.password)})
+            update_data.update({'hashed_password': get_password_hash(obj_in.password)})
         result = await super().update(db, db_obj=db_obj, obj_in=update_data)
         return result
 

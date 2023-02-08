@@ -1,11 +1,15 @@
+from __future__ import annotations
+
 from pathlib import Path
 
 from app.api.api_v1.api import api_router
 from app.api.errors.http_error import http_error_handler
 from app.api.errors.validation_error import http422_error_handler
-from app.api.openapi import custom_openapi, use_route_names_as_operation_ids
+from app.api.openapi import custom_openapi
+from app.api.openapi import use_route_names_as_operation_ids
 from app.core.config import get_app_settings
-from app.core.events import create_start_app_handler, create_stop_app_handler
+from app.core.events import create_start_app_handler
+from app.core.events import create_stop_app_handler
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException
@@ -18,7 +22,7 @@ current_file = Path(__file__)
 current_file_dir = current_file.parent
 project_root = current_file_dir.parent
 project_root_absolute = project_root.resolve()
-project_static_path = project_root_absolute / "app/static"
+project_static_path = project_root_absolute / 'app/static'
 
 
 def get_application() -> FastAPI:
@@ -32,16 +36,16 @@ def get_application() -> FastAPI:
         CORSMiddleware,
         allow_origins=get_app_settings().BACKEND_CORS_ORIGINS,
         allow_credentials=True,
-        allow_methods=["*"],
-        expose_headers=["Content-Range", "Range"],
-        allow_headers=["*", "Authorization", "Range", "Content-Type", "Content-Range"],
+        allow_methods=['*'],
+        expose_headers=['Content-Range', 'Range'],
+        allow_headers=['*', 'Authorization', 'Range', 'Content-Type', 'Content-Range'],
     )
     application.add_event_handler(
-        "startup",
+        'startup',
         create_start_app_handler(application, settings),
     )
     application.add_event_handler(
-        "shutdown",
+        'shutdown',
         create_stop_app_handler(application),
     )
 
@@ -54,7 +58,7 @@ def get_application() -> FastAPI:
     use_route_names_as_operation_ids(application)
 
     application.mount(
-        "/static", StaticFiles(directory=project_static_path), name="static"
+        '/static', StaticFiles(directory=project_static_path), name='static',
     )
 
     return application
@@ -63,6 +67,6 @@ def get_application() -> FastAPI:
 app = get_application()
 
 
-@app.get("/")
+@app.get('/')
 async def root(request: Request):
-    return FileResponse(path=project_static_path / "html/index.html")
+    return FileResponse(path=project_static_path / 'html/index.html')
