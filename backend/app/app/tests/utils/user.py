@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import Dict
 
 from app import crud
@@ -19,12 +17,12 @@ def user_authentication_headers(
     email: str,
     password: str,
 ) -> Dict[str, str]:
-    data = {'username': email, 'password': password}
+    data = {"username": email, "password": password}
 
-    r = client.post(f'{get_app_settings().api_v1}/login/access-token', data=data)
+    r = client.post(f"{get_app_settings().api_v1}/login/access-token", data=data)
     response = r.json()
-    auth_token = response['access_token']
-    headers = {'Authorization': f'Bearer {auth_token}'}
+    auth_token = response["access_token"]
+    headers = {"Authorization": f"Bearer {auth_token}"}
     return headers
 
 

@@ -1,23 +1,22 @@
-from __future__ import annotations
-
 import os
 from enum import Enum
 
 from dotenv import load_dotenv
 from pydantic import BaseSettings
 
+
 load_dotenv()
 
 
 class AppEnvTypes(Enum):
-    prod: str = 'prod'
-    dev: str = 'dev'
-    test: str = 'test'
+    prod: str = "prod"
+    dev: str = "dev"
+    test: str = "test"
 
 
 class BaseAppSettings(BaseSettings):
-    APP_ENV: AppEnvTypes = os.getenv('APP_ENV', AppEnvTypes.prod)
+    APP_ENV: AppEnvTypes = os.getenv("APP_ENV", AppEnvTypes.dev)
     assert APP_ENV in [x.name for x in AppEnvTypes], ValueError()
 
     class Config:
-        env_file = '.env'
+        env_file = ".env"

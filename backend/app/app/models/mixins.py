@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import re
 from enum import Enum
 
@@ -11,8 +9,8 @@ class TimestampsMixin:
 
     __abstract__ = True
 
-    __created_at_name__ = 'created_at'
-    __updated_at_name__ = 'updated_at'
+    __created_at_name__ = "created_at"
+    __updated_at_name__ = "updated_at"
     __datetime_func__ = sa.func.now()
 
     created_at = sa.Column(
@@ -34,11 +32,11 @@ class TimestampsMixin:
 class EnumMixin(Enum):
     @classmethod
     def snake_case_name(cls):
-        return re.sub(r'(?<!^)(?=[A-Z])', '_', str(cls.__name__)).lower()
+        return re.sub(r"(?<!^)(?=[A-Z])", "_", str(cls.__name__)).lower()
 
     @classmethod
     def col_name(cls):
-        return cls.snake_case_name().split('_')[-1]
+        return cls.snake_case_name().split("_")[-1]
 
     @classmethod
     def to_list(cls) -> list:

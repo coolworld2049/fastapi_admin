@@ -1,17 +1,16 @@
-from __future__ import annotations
-
 import sys
 from logging.config import fileConfig
 
 from alembic import context
-from app.core.config import get_app_settings
-from app.db.session import Base
 from loguru import logger
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from sqlalchemy.exc import ProgrammingError
 
-sys.path = ['', '..'] + sys.path[1:]
+sys.path = ["", ".."] + sys.path[1:]  # noqa
+
+from app.core.config import get_app_settings  # noqa
+from app.db.session import Base  # noqa
 
 
 # this is the Alembic Config object, which provides
@@ -51,7 +50,7 @@ def run_migrations_offline():
 
     """
     context.configure(
-        url=get_app_settings().get_postgres_dsn,
+        url=get_app_settings().get_raw_postgres_dsn,
         target_metadata=target_metadata,
         literal_binds=True,
         compare_type=True,
@@ -69,10 +68,10 @@ def run_migrations_online():
 
     """
     configuration = config.get_section(config.config_ini_section)
-    configuration['sqlalchemy.url'] = get_app_settings().get_postgres_dsn
+    configuration["sqlalchemy.url"] = get_app_settings().get_raw_postgres_dsn
     connectable = engine_from_config(
         configuration,
-        prefix='sqlalchemy.',
+        prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
 

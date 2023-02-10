@@ -1,8 +1,3 @@
-from __future__ import annotations
-
-from app.db.session import Base
-from app.models.mixins import TimestampsMixin
-from app.models.user.role import UserRole
 from sqlalchemy import BigInteger
 from sqlalchemy import Boolean
 from sqlalchemy import CheckConstraint
@@ -13,12 +8,16 @@ from sqlalchemy import Text
 from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import ENUM
 
+from app.models.base import BaseModel
+from app.models.mixins import TimestampsMixin
+from app.models.user.role import UserRole
 
-class User(Base, TimestampsMixin):
-    __tablename__ = 'user'
+
+class User(BaseModel, TimestampsMixin):
+    __tablename__ = "user"
     __table_args__ = (
-        CheckConstraint('full_name <> (role)::text'),
-        CheckConstraint('username <> (role)::text'),
+        CheckConstraint("full_name <> (role)::text"),
+        CheckConstraint("username <> (role)::text"),
     )
     id = Column(BigInteger, primary_key=True)
     email = Column(Text, nullable=False, unique=True)
@@ -33,5 +32,5 @@ class User(Base, TimestampsMixin):
     age = Column(SmallInteger)
     phone = Column(String(20))
     avatar = Column(Text)
-    is_active = Column(Boolean, nullable=False, server_default=text('true'))
-    is_superuser = Column(Boolean, nullable=False, server_default=text('false'))
+    is_active = Column(Boolean, nullable=False, server_default=text("true"))
+    is_superuser = Column(Boolean, nullable=False, server_default=text("false"))

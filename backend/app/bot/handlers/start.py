@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from aiogram import Bot
 from aiogram import Router
 from aiogram.filters import Command
@@ -12,12 +10,13 @@ from aiogram.types import WebAppInfo
 router = Router()
 
 
-@router.message(Command(commands=['start']))
+@router.message(Command(commands=["start"]))
 async def command_start(message: Message, bot: Bot, base_url: str):
     await bot.set_chat_menu_button(
         chat_id=message.chat.id,
         menu_button=MenuButtonWebApp(
-            text='Open Menu', web_app=WebAppInfo(url=f'{base_url}/demo'),
+            text="Open Menu",
+            web_app=WebAppInfo(url=f"{base_url}/demo"),
         ),
     )
     await message.answer(
@@ -25,15 +24,16 @@ async def command_start(message: Message, bot: Bot, base_url: str):
     )
 
 
-@router.message(Command(commands=['webview']))
+@router.message(Command(commands=["webview"]))
 async def command_webview(message: Message, base_url: str):
     await message.answer(
-        'Good. Now you can try to send it via Webview',
+        "Good. Now you can try to send it via Webview",
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[
                 [
                     InlineKeyboardButton(
-                        text='Open Webview', web_app=WebAppInfo(url=f'{base_url}/demo'),
+                        text="Open Webview",
+                        web_app=WebAppInfo(url=f"{base_url}/demo"),
                     ),
                 ],
             ],

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import Union
 
 from fastapi.exceptions import RequestValidationError
@@ -16,15 +14,15 @@ async def http422_error_handler(
     exc: Union[RequestValidationError, ValidationError],
 ) -> JSONResponse:
     return JSONResponse(
-        {'errors': exc.errors()},
+        {"errors": exc.errors()},
         status_code=HTTP_422_UNPROCESSABLE_ENTITY,
     )
 
 
-validation_error_response_definition['properties'] = {
-    'errors': {
-        'title': 'Errors',
-        'type': 'array',
-        'items': {'$ref': '{0}ValidationError'.format(REF_PREFIX)},
+validation_error_response_definition["properties"] = {
+    "errors": {
+        "title": "Errors",
+        "type": "array",
+        "items": {"$ref": "{0}ValidationError".format(REF_PREFIX)},
     },
 }
