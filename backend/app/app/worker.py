@@ -1,6 +1,5 @@
-from raven import Client
-
 from app.core.celery_app import celery_app
+from raven import Client
 
 client_sentry = Client()
 client_sentry.set_dsn()

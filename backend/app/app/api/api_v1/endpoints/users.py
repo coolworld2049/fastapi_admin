@@ -1,15 +1,23 @@
-from typing import Any, List
+from typing import Any
+from typing import List
 
-from fastapi import APIRouter, Body, Depends, HTTPException, Response
+from app import crud
+from app import models
+from app import schemas
+from app.api.dependencies import auth
+from app.api.dependencies import database
+from app.api.dependencies import params
+from app.models.user_role import UserRole
+from app.models.user import User
+from fastapi import APIRouter
+from fastapi import Body
+from fastapi import Depends
+from fastapi import HTTPException
+from fastapi import Response
 from fastapi.encoders import jsonable_encoder
 from fastapi.params import Query
 from pydantic.networks import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from app import crud, models, schemas
-from app.api.dependencies import auth, database, params
-from app.models.classifiers import UserRole
-from app.models.user import User
 
 router = APIRouter()
 
@@ -17,10 +25,10 @@ router = APIRouter()
 @router.get("/", response_model=List[schemas.User])
 async def read_users(
     response: Response,
-    db: AsyncSession = Depends(database.get_session),
-    current_user: models.User = Depends(auth.get_current_active_user),
+    db: AsyncSession = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_active_user), # noqa
     request_params: schemas.RequestParams = Depends(
-        params.parse_react_admin_params(User)
+        params.parse_react_admin_params(User),
     ),
 ) -> Any:
     """
@@ -36,7 +44,7 @@ async def read_users(
 @router.post("/", response_model=schemas.User)
 async def create_user(
     *,
-    db: AsyncSession = Depends(database.get_session),
+    db: AsyncSession = Depends(database.get_db),
     user_in: schemas.UserCreate,
     current_user: models.User = Depends(auth.get_current_active_user),
 ) -> Any:
@@ -62,7 +70,7 @@ async def create_user(
 @router.put("/me", response_model=schemas.User)
 async def update_user_me(
     *,
-    db: AsyncSession = Depends(database.get_session),
+    db: AsyncSession = Depends(database.get_db),
     password: str = Body(None),
     email: EmailStr = Body(None),
     current_user: models.User = Depends(auth.get_current_active_user),
@@ -83,7 +91,7 @@ async def update_user_me(
 @router.get("/me", response_model=schemas.User)
 async def read_user_me(
     response: Response,
-    db: AsyncSession = Depends(database.get_session),
+    db: AsyncSession = Depends(database.get_db),
     current_user: models.User = Depends(auth.get_current_active_user),
 ) -> Any:
     """
@@ -97,8 +105,8 @@ async def read_user_me(
 @router.get("/{id}", response_model=schemas.User)
 async def read_user_by_id(
     id: int,
-    current_user: models.User = Depends(auth.get_current_active_user),
-    db: AsyncSession = Depends(database.get_session),
+    current_user: models.User = Depends(auth.get_current_active_user), # noqa
+    db: AsyncSession = Depends(database.get_db),
 ) -> Any:
     """
     Get a specific user.
@@ -111,9 +119,9 @@ async def read_user_by_id(
 async def update_user(
     *,
     id: int,
-    db: AsyncSession = Depends(database.get_session),
+    db: AsyncSession = Depends(database.get_db),
     user_in: schemas.UserUpdate,
-    current_user: models.User = Depends(auth.get_current_active_superuser),
+    current_user: models.User = Depends(auth.get_current_active_superuser), # noqa
 ) -> Any:
     """
     Update a user.
@@ -132,8 +140,8 @@ async def update_user(
 async def delete_user(
     *,
     id: int,
-    db: AsyncSession = Depends(database.get_session),
-    current_user: models.User = Depends(auth.get_current_active_user),
+    db: AsyncSession = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_active_user), # noqa
 ) -> Any:
     """
     Delete user.
@@ -154,10 +162,10 @@ async def delete_user(
 async def read_users_by_role_id(
     response: Response,
     rolname: str = Query(None),
-    db: AsyncSession = Depends(database.get_session),
-    current_user: models.User = Depends(auth.get_current_active_user),
+    db: AsyncSession = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_active_user), # noqa
     request_params: schemas.RequestParams = Depends(
-        params.parse_react_admin_params(User)
+        params.parse_react_admin_params(User),
     ),
 ) -> Any:
     """

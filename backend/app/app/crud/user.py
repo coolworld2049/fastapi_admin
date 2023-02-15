@@ -1,44 +1,69 @@
-from typing import Any, Optional, Sequence
+from collections.abc import Sequence
+from typing import Any
+from typing import Optional
 
-from sqlalchemy import and_, select, Row, RowMapping
+from loguru import logger
+from sqlalchemy import Row
+from sqlalchemy import RowMapping
+from sqlalchemy import and_
+from sqlalchemy import select
 from sqlalchemy.engine import Result
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql import Select
 
+from app.core.config import get_app_settings
 from app.crud.base import CRUDBase
 from app.models.user import User
-from app.schemas import RequestParams, UserCreate, UserUpdate
-from app.services.security import get_password_hash, verify_password
+from app.schemas import RequestParams
+from app.schemas import UserCreate
+from app.schemas import UserUpdate
+from app.services.security import get_password_hash
+from app.services.security import verify_password
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
+
+    @staticmethod
+    async def password_to_hash(_data: UserCreate | UserUpdate):
+        data = _data.dict()
+        if data.get("password"):
+            hashed_password = get_password_hash(data.get("password"))
+            data.update({"hashed_password": hashed_password})
+            data.pop("password")
+            data.pop("password_confirm")
+        return User(**data) # noqa
+
     async def create(self, db: AsyncSession, *, obj_in: UserCreate) -> User:
-        create_data: dict = obj_in.dict()
-        create_data.pop("password")
-        db_obj = User(**create_data)  # noqa
-        db_obj.hashed_password = get_password_hash(obj_in.password)
-        db.add(db_obj)
-        await db.commit()
+        db_obj = await self.password_to_hash(obj_in)
+        try:
+            db.add(db_obj)
+            await db.commit()
+        except SQLAlchemyError as e:
+            await db.rollback()
+            logger.error(e.__dict__['orig']) if get_app_settings().APP_ENV == 'dev' else None
         return db_obj
 
     async def update(
-        self, db: AsyncSession, *, db_obj: User, obj_in: UserUpdate | dict[str, Any]
+        self,
+        db: AsyncSession,
+        *,
+        db_obj: User,
+        obj_in: UserUpdate | dict[str, Any],
     ) -> User:
-        if isinstance(obj_in, dict):
-            update_data = obj_in
-        else:
-            update_data = obj_in.dict(exclude_unset=True)
-        if update_data.get("password"):
-            update_data.pop("password")
-            # noinspection PyUnresolvedReferences
-            update_data.update({"hashed_password": get_password_hash(obj_in.password)})
-        result = await super().update(db, db_obj=db_obj, obj_in=update_data)
+        db_obj = await self.password_to_hash(obj_in)
+        result = await super().update(db, db_obj=db_obj, obj_in=db_obj)
         return result
 
     # noinspection PyMethodMayBeStatic
     async def get_by_id(
-        self, db: AsyncSession, *, id: int, role: str = None
+        self,
+        db: AsyncSession,
+        *,
+        id: int,
+        role: str = None,
     ) -> Optional[User]:
-        q = select(User)
+        q: Select = select(User)
         if role:
             q = q.where(User.role == role)
         q = q.where(User.id == id)
@@ -47,7 +72,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
     # noinspection PyMethodMayBeStatic
     async def get_by_email(self, db: AsyncSession, *, email: str) -> Optional[User]:
-        q = select(User).where(User.email == email)
+        q: Select = select(User).where(User.email == email)
         result: Result = await db.execute(q)
         return result.scalar()
 
@@ -92,10 +117,6 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     # noinspection PyMethodMayBeStatic,PyShadowingNames
     def is_superuser(self, user: User) -> bool:
         return user.is_superuser
-
-    # noinspection PyMethodMayBeStatic,PyShadowingNames
-    def is_online(self, user: User) -> bool:
-        return user.is_online
 
 
 user = CRUDUser(User)

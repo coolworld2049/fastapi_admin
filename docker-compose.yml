@@ -2,32 +2,17 @@ version: '3.9'
 
 services:
 
-  db:
+  postgres:
     image: postgres:15
     env_file:
       - .env
     environment:
       - PGPORT=${PG_PORT}
       - PGTZ=${TZ}
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
     ports:
       - ${PG_PORT}:${PG_PORT}
-
-  app:
-    build:
-      context: backend
-      dockerfile: backend.dockerfile
-    command: ./start.sh
-    env_file:
-      - .env
-    environment:
-      - PG_HOST=db
-      - RABBITMQ_HOST=queue
-      - SERVER_NAME=${DOMAIN}
-      - SERVER_HOST=https://${DOMAIN}
-    depends_on:
-      - db
-    ports:
-      - ${PORT}:${PORT}
 
 
   queue:
@@ -40,17 +25,58 @@ services:
       - ${RABBITMQ_PORT}:${RABBITMQ_PORT}
       - ${RABBITMQ_HTTP_PORT}:${RABBITMQ_HTTP_PORT}
 
+  redis:
+    image: redislabs/redismod
+    expose:
+      - ${REDIS_PORT}
+
+
   celeryworker:
     build:
       context: backend
       dockerfile: celeryworker.dockerfile
     depends_on:
-      - db
+      - postgres
       - queue
+      - redis
     env_file:
       - .env
     environment:
-      - PG_HOST=db
+      - PG_HOST=postgres
+      - REDIS_HOST=redis
       - RABBITMQ_HOST=queue
-      - SERVER_NAME=${DOMAIN?Variable not set}
-      - SERVER_HOST=https://${DOMAIN?Variable not set}
+      - SERVER_NAME=${DOMAIN}
+      - SERVER_HOST=https://${DOMAIN}
+
+  backend:
+    build:
+      context: backend
+      dockerfile: app.dockerfile
+    command: ./start.sh
+    env_file:
+      - .env
+    environment:
+      - PG_HOST=postgres
+      - REDIS_HOST=redis
+      - RABBITMQ_HOST=queue
+      - SERVER_NAME=${DOMAIN}
+      - SERVER_HOST=https://${DOMAIN}
+    depends_on:
+      - postgres
+    ports:
+      - ${PORT}:${PORT}
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: frontend.dockerfile
+    env_file:
+      - .env
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+
+volumes:
+  postgres-data:

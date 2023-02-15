@@ -7,5 +7,5 @@ class TestAppSettings(AppSettings):
     debug: bool = True
     title: str = "Test FastAPI example application"
 
-    SECRET_KEY: str
+    JWT_SECRET_KEY: str
     LOGGING_LEVEL: int = logging.DEBUG

@@ -1,12 +1,16 @@
 import json
+from collections.abc import Callable
 from datetime import datetime
-from typing import Any, Callable, Optional
-
-from fastapi import HTTPException, Query
-from sqlalchemy import and_, asc, desc
-from sqlalchemy.orm import DeclarativeMeta
+from typing import Any
+from typing import Optional
 
 from app.schemas import RequestParams
+from fastapi import HTTPException
+from fastapi import Query
+from sqlalchemy import and_
+from sqlalchemy import asc
+from sqlalchemy import desc
+from sqlalchemy.orm import DeclarativeMeta
 
 
 def parse_react_admin_params(
@@ -54,18 +58,18 @@ def parse_react_admin_params(
             if len(ft) > 0:
                 fb = []
                 filter_dict: dict = dict(
-                    filter(lambda it: str(it[0]).isdigit() is False, ft.items())
+                    filter(lambda it: str(it[0]).isdigit() is False, ft.items()),
                 )
                 for k, v in filter_dict.items():
                     if v is None:
                         fb.append(model.__table__.c[k] == None)  # noqa
                     elif isinstance(v, str):
-                        if k:  # in classifiers.pg_custom_type_colnames
+                        if k:  # in enums.pg_custom_type_colnames
                             fb.append(model.__table__.c[k] == v)
                         else:
                             if str(k).split("_")[-1] == "date":
                                 fb.append(
-                                    model.__table__.c[k] >= datetime.fromisoformat(v)
+                                    model.__table__.c[k] >= datetime.fromisoformat(v),
                                 )
                             else:
                                 fb.append(model.__table__.c[k].ilike(f"{v}%"))
@@ -83,7 +87,10 @@ def parse_react_admin_params(
                     filter_by = and_(*fb)
 
         return RequestParams(
-            skip=skip, limit=limit, order_by=order_by, filter_by=filter_by
+            skip=skip,
+            limit=limit,
+            order_by=order_by,
+            filter_by=filter_by,
         )
 
     return inner

@@ -1,9 +1,9 @@
-from sqlalchemy import BigInteger, Column
+from sqlalchemy import Column, BIGINT
 from sqlalchemy_mixins import AllFeaturesMixin
 
 from app.db.session import Base
 
 
-class BaseDbModel(Base, AllFeaturesMixin):
+class BaseModel(Base, AllFeaturesMixin):
     __abstract__ = True
-    id = Column(BigInteger, primary_key=True)
+    id = Column(BIGINT, primary_key=True)

@@ -1,4 +1,4 @@
-from app.services.jwt import cryptContext
+from passlib.context import CryptContext
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -7,3 +7,6 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def get_password_hash(password: str) -> str:
     return cryptContext.hash(password)
+
+
+cryptContext = CryptContext(schemes=["bcrypt"], deprecated="auto")

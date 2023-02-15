@@ -9,3 +9,6 @@ COPY ./app /app
 WORKDIR /app
 
 ENV PYTHONPATH=/app
+
+
+

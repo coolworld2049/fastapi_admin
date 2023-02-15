@@ -4,8 +4,11 @@ import logging
 from db.session import SessionLocal
 from loguru import logger
 from sqlalchemy import text
-from tenacity import (after_log, before_log, retry, stop_after_attempt,
-                      wait_fixed)
+from tenacity import after_log
+from tenacity import before_log
+from tenacity import retry
+from tenacity import stop_after_attempt
+from tenacity import wait_fixed
 
 max_tries = 60 * 5  # 5 minutes
 wait_seconds = 1

@@ -1,21 +1,19 @@
+from app.core.config import get_app_settings
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 from fastapi.routing import APIRoute
-
-from app.core.config import get_app_settings
 
 
 def custom_openapi(app: FastAPI):
     if app.openapi_schema:
         return app.openapi_schema
     openapi_schema = get_openapi(
-        title=get_app_settings().APP_NAME,
-        version="1.0.0",
-        description="Custom OpenAPI schema",
+        title=get_app_settings().title,
+        version=get_app_settings().version,
         routes=app.routes,
     )
     openapi_schema["info"]["x-logo"] = {
-        "url": "https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png"
+        "url": "https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png",
     }
     app.openapi_schema = openapi_schema
     return app.openapi_schema

@@ -1,11 +1,13 @@
 from pathlib import Path
 
 from aiogram import Bot
-from aiogram.types import (InlineKeyboardButton, InlineKeyboardMarkup,
-                           InlineQueryResultArticle, InputTextMessageContent,
-                           WebAppInfo)
-from aiogram.utils.web_app import (check_webapp_signature,
-                                   safe_parse_webapp_init_data)
+from aiogram.types import InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup
+from aiogram.types import InlineQueryResultArticle
+from aiogram.types import InputTextMessageContent
+from aiogram.types import WebAppInfo
+from aiogram.utils.web_app import check_webapp_signature
+from aiogram.utils.web_app import safe_parse_webapp_init_data
 from aiohttp.web_request import Request
 from aiohttp.web_response import json_response
 
@@ -26,7 +28,8 @@ async def send_message_handler(request: Request):
     data = await request.post()
     try:
         web_app_init_data = safe_parse_webapp_init_data(
-            token=bot.token, init_data=data["_auth"]
+            token=bot.token,
+            init_data=data["_auth"],
         )
     except ValueError:
         return json_response({"ok": False, "err": "Unauthorized"}, status=401)
@@ -40,9 +43,9 @@ async def send_message_handler(request: Request):
                     InlineKeyboardButton(
                         text="Open",
                         web_app=WebAppInfo(url=str(request.url.with_scheme("https"))),
-                    )
-                ]
-            ]
+                    ),
+                ],
+            ],
         )
     await bot.answer_web_app_query(
         web_app_query_id=web_app_init_data.query_id,

@@ -1,9 +1,8 @@
 from typing import Dict
 
 import pytest
-from fastapi.testclient import TestClient
-
 from app.core.config import get_app_settings
+from fastapi.testclient import TestClient
 
 
 @pytest.mark.asyncio
@@ -21,7 +20,8 @@ async def test_get_access_token(client: TestClient) -> None:
 
 @pytest.mark.asyncio
 async def test_use_access_token(
-    client: TestClient, superuser_token_headers: Dict[str, str]
+    client: TestClient,
+    superuser_token_headers: Dict[str, str],
 ) -> None:
     r = client.post(
         f"{get_app_settings().api_v1}/login/test-token",

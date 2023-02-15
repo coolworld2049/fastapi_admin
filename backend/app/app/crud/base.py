@@ -1,14 +1,22 @@
-from typing import (Any, Dict, Generic, Optional, Type, TypeVar,
-                    Union, Sequence)
-
-from pydantic import BaseModel
-from sqlalchemy import select, func, Row, RowMapping
-from sqlalchemy.engine import Result
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql import Select
+from collections.abc import Sequence
+from typing import Any
+from typing import Dict
+from typing import Generic
+from typing import Optional
+from typing import Type
+from typing import TypeVar
+from typing import Union
 
 from app.db.session import Base
 from app.schemas import RequestParams
+from pydantic import BaseModel
+from sqlalchemy import func
+from sqlalchemy import Row
+from sqlalchemy import RowMapping
+from sqlalchemy import select
+from sqlalchemy.engine import Result
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql import Select
 
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
@@ -26,11 +34,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self.model = model
 
     async def get(self, db: AsyncSession, id: Any) -> Optional[ModelType]:
-        q = select(self.model).where(self.model.id == id)
+        q: Select = select(self.model).where(self.model.id == id)
         result: Result = await db.execute(q)
         return result.scalar()
 
-    # noinspection PyMethodMayBeStatic
     async def constr_query_filter(
         self,
         query: Any,
@@ -39,7 +46,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         column: Any = None,
     ) -> tuple[Any, Select]:
         query_count = select(
-            func.count(column) if column is not None else self.model.id
+            func.count(column) if column is not None else self.model.id,
         )
         if request_params:
             if request_params.filter_by is not None:
@@ -63,7 +70,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     ) -> tuple[Sequence[Row | RowMapping | Any], Any]:
         query = select(self.model)
         query, query_count = await self.constr_query_filter(
-            query, request_params, filters, self.model.id
+            query,
+            request_params,
+            filters,
+            self.model.id,
         )
         total: Result = await db.execute(query_count)
         result: Result = await db.execute(query)
@@ -83,7 +93,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db: AsyncSession,
         *,
         db_obj: ModelType,
-        obj_in: Union[UpdateSchemaType, Dict[str, Any]]
+        obj_in: Union[UpdateSchemaType, Dict[str, Any]],
     ) -> ModelType:
         obj_data: dict = db_obj.to_dict()
         if isinstance(obj_in, dict):

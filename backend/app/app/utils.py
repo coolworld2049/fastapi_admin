@@ -1,13 +1,13 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
+from datetime import timedelta
 from pathlib import Path
 from typing import Optional
 
 import emails
+from app.core.config import get_app_settings
 from emails.template import JinjaTemplate
 from jose import jwt
-
-from app.core.config import get_app_settings
 
 
 def send_email(
@@ -63,7 +63,7 @@ def send_reset_password_email(email_to: str, email: str, token: str) -> None:
     project_name = get_app_settings().APP_NAME
     subject = f"{project_name} - Password recovery for user {email}"
     with open(
-        Path(get_app_settings().EMAIL_TEMPLATES_DIR) / "reset_password.html"
+        Path(get_app_settings().EMAIL_TEMPLATES_DIR) / "reset_password.html",
     ) as f:
         template_str = f.read()
     server_host = get_app_settings().SERVER_HOST
@@ -109,7 +109,7 @@ def generate_password_reset_token(email: str) -> str:
     exp = expires.timestamp()
     encoded_jwt = jwt.encode(
         {"exp": exp, "nbf": now, "sub": email},
-        get_app_settings().SECRET_KEY,
+        get_app_settings().JWT_SECRET_KEY,
         algorithm="HS256",
     )
     return encoded_jwt
@@ -118,7 +118,9 @@ def generate_password_reset_token(email: str) -> str:
 def verify_password_reset_token(token: str) -> Optional[str]:
     try:
         decoded_token = jwt.decode(
-            token, get_app_settings().SECRET_KEY, algorithms=["HS256"]
+            token,
+            get_app_settings().JWT_SECRET_KEY,
+            algorithms=["HS256"],
         )
         return decoded_token["email"]
     except jwt.JWTError:

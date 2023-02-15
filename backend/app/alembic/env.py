@@ -1,18 +1,17 @@
-from __future__ import with_statement
-
 import sys
 from logging.config import fileConfig
 
 from alembic import context
 from loguru import logger
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import engine_from_config
+from sqlalchemy import pool
 from sqlalchemy.exc import ProgrammingError
 
-from app.core.config import get_app_settings
+sys.path = ["", ".."] + sys.path[1:]  # noqa
 
-sys.path = ["", ".."] + sys.path[1:]
+from app.core.config import get_app_settings  # noqa
+from app.db.session import Base  # noqa
 
-from app.db.base import Base  # noqa
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -51,7 +50,10 @@ def run_migrations_offline():
 
     """
     context.configure(
-        url=get_app_settings().get_postgres_dsn, target_metadata=target_metadata, literal_binds=True, compare_type=True
+        url=get_app_settings().get_raw_postgres_dsn,
+        target_metadata=target_metadata,
+        literal_binds=True,
+        compare_type=True,
     )
 
     with context.begin_transaction():
@@ -66,7 +68,7 @@ def run_migrations_online():
 
     """
     configuration = config.get_section(config.config_ini_section)
-    configuration["sqlalchemy.url"] = get_app_settings().get_postgres_dsn
+    configuration["sqlalchemy.url"] = get_app_settings().get_raw_postgres_dsn
     connectable = engine_from_config(
         configuration,
         prefix="sqlalchemy.",
@@ -75,7 +77,9 @@ def run_migrations_online():
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata, compare_type=True
+            connection=connection,
+            target_metadata=target_metadata,
+            compare_type=True,
         )
 
         with context.begin_transaction():

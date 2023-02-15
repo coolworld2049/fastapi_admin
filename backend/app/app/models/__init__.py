@@ -1,4 +1,4 @@
 from .base import *
-from .classifiers import *
 from .mixins import *
+from .user_role import *
 from .user import *
