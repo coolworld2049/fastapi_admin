@@ -1,1 +1,4 @@
-from app.models.user.user import *
+from .base import *
+from .mixins import *
+from .user_role import *
+from .user import *

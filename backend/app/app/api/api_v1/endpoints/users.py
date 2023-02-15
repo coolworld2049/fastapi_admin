@@ -7,8 +7,8 @@ from app import schemas
 from app.api.dependencies import auth
 from app.api.dependencies import database
 from app.api.dependencies import params
-from app.models.user.role import UserRole
-from app.models.user.user import User
+from app.models.user_role import UserRole
+from app.models.user import User
 from fastapi import APIRouter
 from fastapi import Body
 from fastapi import Depends
@@ -26,7 +26,7 @@ router = APIRouter()
 async def read_users(
     response: Response,
     db: AsyncSession = Depends(database.get_db),
-    current_user: models.User = Depends(auth.get_current_active_user),
+    current_user: models.User = Depends(auth.get_current_active_user), # noqa
     request_params: schemas.RequestParams = Depends(
         params.parse_react_admin_params(User),
     ),
@@ -105,7 +105,7 @@ async def read_user_me(
 @router.get("/{id}", response_model=schemas.User)
 async def read_user_by_id(
     id: int,
-    current_user: models.User = Depends(auth.get_current_active_user),
+    current_user: models.User = Depends(auth.get_current_active_user), # noqa
     db: AsyncSession = Depends(database.get_db),
 ) -> Any:
     """
@@ -121,7 +121,7 @@ async def update_user(
     id: int,
     db: AsyncSession = Depends(database.get_db),
     user_in: schemas.UserUpdate,
-    current_user: models.User = Depends(auth.get_current_active_superuser),
+    current_user: models.User = Depends(auth.get_current_active_superuser), # noqa
 ) -> Any:
     """
     Update a user.
@@ -141,7 +141,7 @@ async def delete_user(
     *,
     id: int,
     db: AsyncSession = Depends(database.get_db),
-    current_user: models.User = Depends(auth.get_current_active_user),
+    current_user: models.User = Depends(auth.get_current_active_user), # noqa
 ) -> Any:
     """
     Delete user.
@@ -163,7 +163,7 @@ async def read_users_by_role_id(
     response: Response,
     rolname: str = Query(None),
     db: AsyncSession = Depends(database.get_db),
-    current_user: models.User = Depends(auth.get_current_active_user),
+    current_user: models.User = Depends(auth.get_current_active_user), # noqa
     request_params: schemas.RequestParams = Depends(
         params.parse_react_admin_params(User),
     ),

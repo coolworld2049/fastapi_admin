@@ -1,9 +1,10 @@
+from fastapi.security import OAuth2PasswordBearer
+
 from app import crud
 from app import schemas
 from app.api.dependencies import database
 from app.core.config import get_app_settings
-from app.models.user.user import User
-from app.services.jwt import oauth2Scheme
+from app.models.user import User
 from asyncpg import Connection
 from fastapi import Depends
 from fastapi import HTTPException
@@ -14,6 +15,10 @@ from sqlalchemy import text
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
+
+oauth2Scheme = OAuth2PasswordBearer(
+    tokenUrl=f"{get_app_settings().api_v1}/login/access-token",
+)
 
 
 async def get_current_user(
@@ -68,8 +73,8 @@ async def get_current_active_superuser(
 
 async def auth_in_db(db: AsyncSession, user: User):
     await get_session_user(db)
-    # await reset_session_user(db)
-    # await get_session_user(db)
+    await reset_session_user(db)
+    await get_session_user(db)
     if not await is_rolname_exist(db, user):
         await create_user_in_role(db, user)
     await reset_session_user(db)
@@ -137,5 +142,5 @@ async def set_session_user(db: AsyncSession, current_user: User):
 async def reset_session_user(db: AsyncSession):
     reset_q = """reset session authorization"""
     if get_app_settings().DEBUG:
-        logger.info(".")
+        logger.info("reset")
     await db.execute(text(reset_q))

@@ -2,30 +2,46 @@ from collections.abc import Sequence
 from typing import Any
 from typing import Optional
 
+from loguru import logger
+from sqlalchemy import Row
+from sqlalchemy import RowMapping
+from sqlalchemy import and_
+from sqlalchemy import select
+from sqlalchemy.engine import Result
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql import Select
+
+from app.core.config import get_app_settings
 from app.crud.base import CRUDBase
-from app.models import User
+from app.models.user import User
 from app.schemas import RequestParams
 from app.schemas import UserCreate
 from app.schemas import UserUpdate
 from app.services.security import get_password_hash
 from app.services.security import verify_password
-from sqlalchemy import and_
-from sqlalchemy import Row
-from sqlalchemy import RowMapping
-from sqlalchemy import select
-from sqlalchemy.engine import Result
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
+
+    @staticmethod
+    async def password_to_hash(_data: UserCreate | UserUpdate):
+        data = _data.dict()
+        if data.get("password"):
+            hashed_password = get_password_hash(data.get("password"))
+            data.update({"hashed_password": hashed_password})
+            data.pop("password")
+            data.pop("password_confirm")
+        return User(**data) # noqa
+
     async def create(self, db: AsyncSession, *, obj_in: UserCreate) -> User:
-        create_data: dict = obj_in.dict()
-        create_data.pop("password")
-        create_data.pop("password_confirm")
-        db_obj = User(**create_data)  # noqa
-        db_obj.hashed_password = get_password_hash(obj_in.password)
-        db.add(db_obj)
-        await db.commit()
+        db_obj = await self.password_to_hash(obj_in)
+        try:
+            db.add(db_obj)
+            await db.commit()
+        except SQLAlchemyError as e:
+            await db.rollback()
+            logger.error(e.__dict__['orig']) if get_app_settings().APP_ENV == 'dev' else None
         return db_obj
 
     async def update(
@@ -35,15 +51,8 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db_obj: User,
         obj_in: UserUpdate | dict[str, Any],
     ) -> User:
-        if isinstance(obj_in, dict):
-            update_data = obj_in
-        else:
-            update_data = obj_in.dict(exclude_unset=True)
-        if update_data.get("password"):
-            update_data.pop("password")
-            # noinspection PyUnresolvedReferences
-            update_data.update({"hashed_password": get_password_hash(obj_in.password)})
-        result = await super().update(db, db_obj=db_obj, obj_in=update_data)
+        db_obj = await self.password_to_hash(obj_in)
+        result = await super().update(db, db_obj=db_obj, obj_in=db_obj)
         return result
 
     # noinspection PyMethodMayBeStatic
@@ -54,7 +63,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         id: int,
         role: str = None,
     ) -> Optional[User]:
-        q = select(User)
+        q: Select = select(User)
         if role:
             q = q.where(User.role == role)
         q = q.where(User.id == id)
@@ -63,7 +72,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
     # noinspection PyMethodMayBeStatic
     async def get_by_email(self, db: AsyncSession, *, email: str) -> Optional[User]:
-        q = select(User).where(User.email == email)
+        q: Select = select(User).where(User.email == email)
         result: Result = await db.execute(q)
         return result.scalar()
 

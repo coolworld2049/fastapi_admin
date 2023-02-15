@@ -51,7 +51,7 @@ services:
   backend:
     build:
       context: backend
-      dockerfile: backend.dockerfile
+      dockerfile: app.dockerfile
     command: ./start.sh
     env_file:
       - .env
@@ -76,6 +76,7 @@ services:
       - backend
     ports:
       - "80:80"
+
 
 volumes:
   postgres-data:

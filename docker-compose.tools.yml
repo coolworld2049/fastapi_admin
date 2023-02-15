@@ -6,8 +6,6 @@ services:
     image: grafana/grafana:latest
     env_file:
       - .env
-    volumes:
-      - ./grafana-data:/var/lib/grafana
     ports:
       - ${GF_PORT}:${GF_PORT}
 
@@ -25,5 +23,3 @@ services:
     ports:
       - ${REDIS_INSIGHT_PORT}:${REDIS_INSIGHT_PORT}
 
-volumes:
-  grafana-data:

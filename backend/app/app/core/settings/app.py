@@ -3,6 +3,7 @@ import sys
 from logging.handlers import RotatingFileHandler
 from typing import Any, Optional
 
+from fastapi_jwt_auth import AuthJWT
 from loguru import logger
 
 from app.core.logging import InterceptHandler
@@ -88,7 +89,7 @@ class AppSettings(BaseAppSettings):
 
     @property
     def get_redis_dsn(self):
-        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}"
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/"
 
     def configure_logging(self) -> None:
         logging.getLogger().handlers = [InterceptHandler()]

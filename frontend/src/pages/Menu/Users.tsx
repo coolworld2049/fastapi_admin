@@ -18,7 +18,6 @@ import {
   NumberInput,
   SimpleShowLayout,
 } from "react-admin";
-import { user_sx } from "../../components/commonStyles";
 import PublicIcon from "@mui/icons-material/Public";
 import PublicOffIcon from "@mui/icons-material/PublicOff";
 
@@ -69,20 +68,15 @@ export const UserList = (props: any) => {
 export const UserEdit = (props: any) => (
   <Edit {...props} redirect="list">
     <SimpleForm>
-      <TextInput source="id" disabled sx={user_sx} />
-      <TextInput source="email" sx={user_sx} />
-      <TextInput source="username" sx={user_sx} />
+      <TextInput source="id" disabled />
+      <TextInput source="email" />
+      <TextInput source="username" />
       <UserRoleInput />
-      <TextInput source="email" sx={user_sx} />
-      <TextInput source="email" sx={user_sx} />
+      <TextInput source="email" />
+      <TextInput source="email" />
       <NumberInput source="age" min={14} max={100} />
-      <TextInput source="phone" sx={user_sx} />
-      <BooleanInput
-        {...props}
-        source="is_active"
-        defaultValue={true}
-        sx={user_sx}
-      />
+      <TextInput source="phone" />
+      <BooleanInput {...props} source="is_active" defaultValue={true} />
     </SimpleForm>
   </Edit>
 );
@@ -91,12 +85,12 @@ export const UserCreate = (props: any) => {
   return (
     <Create {...props} redirect="list">
       <SimpleForm mode="onBlur" reValidateMode="onBlur">
-        <TextInput source="email" sx={user_sx} validate={required()} />
-        <PasswordInput source="password" sx={user_sx} validate={required()} />
-        <TextInput source="username" sx={user_sx} validate={required()} />
+        <TextInput source="email" validate={required()} />
+        <PasswordInput source="password" validate={required()} />
+        <TextInput source="username" validate={required()} />
         <UserRoleInput validate={required()} />
         <NumberInput source="age" min={14} max={100} />
-        <TextInput source="phone" sx={user_sx} />
+        <TextInput source="phone" />
       </SimpleForm>
     </Create>
   );

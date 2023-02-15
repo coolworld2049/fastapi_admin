@@ -8,15 +8,15 @@ from pydantic import BaseSettings
 load_dotenv()
 
 
-class AppEnvTypes(Enum):
+class AppEnvTypes(str, Enum):
     prod: str = "prod"
     dev: str = "dev"
     test: str = "test"
 
 
 class BaseAppSettings(BaseSettings):
-    APP_ENV: AppEnvTypes = os.getenv("APP_ENV", AppEnvTypes.dev)
-    assert APP_ENV in [x.name for x in AppEnvTypes], ValueError()
+    APP_ENV: AppEnvTypes = os.getenv("APP_ENV", AppEnvTypes.dev.name)
+    assert APP_ENV in [x for x in AppEnvTypes], ValueError()
 
     class Config:
         env_file = ".env"

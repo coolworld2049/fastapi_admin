@@ -23,9 +23,5 @@ async def signup(
             status_code=400,
             detail="The user with this username already exists.",
         )
-    if user_in.password != user_in.password_confirm:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Passwords do not match."
-        )
     new_user = await crud.user.create(db, obj_in=user_in)
     return new_user

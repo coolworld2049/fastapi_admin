@@ -12,7 +12,7 @@ const authProvider = {
     const resp = await authApi.loginAccessTokenApiV1LoginAccessTokenPost(
       formData.username,
       formData.password
-  );
+    );
     localStorage.setItem("token", <string>resp.data.access_token);
     return Promise.resolve();
   },

@@ -1,9 +1,4 @@
-import {
-  Admin,
-  CustomRoutes,
-  Resource,
-  ShowGuesser,
-} from "react-admin";
+import { Admin, CustomRoutes, Resource, ShowGuesser } from "react-admin";
 import { Route } from "react-router";
 import MyLayout from "./components/AdminLayout";
 import Dashboard from "./pages/Dashboard/Dashboard";
@@ -14,8 +9,6 @@ import authProvider from "./providers/authProvider";
 import PersonIcon from "@mui/icons-material/Person";
 import { dataProvider } from "./providers/dataProvider";
 import Moment from "react-moment";
-
-
 
 // Sets the moment instance to use.
 Moment.globalMoment = require("moment");

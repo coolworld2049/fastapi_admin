@@ -2,7 +2,7 @@ from typing import Dict
 
 from app import crud
 from app.core.config import get_app_settings
-from app.models.user.user import User
+from app.models.user import User
 from app.schemas.user import UserCreate
 from app.schemas.user import UserUpdate
 from app.tests.utils.utils import gen_random_password

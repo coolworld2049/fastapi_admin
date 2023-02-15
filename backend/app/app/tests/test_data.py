@@ -16,8 +16,8 @@ from app.db.session import Base
 from app.db.session import SessionLocal
 from app.db.session import engine
 from app.db.session import pg_database
-from app.models.user.role import UserRole
-from app.models.user.user import User
+from app.models.user_role import UserRole
+from app.models.user import User
 from app.tests.utils.utils import gen_random_password
 
 

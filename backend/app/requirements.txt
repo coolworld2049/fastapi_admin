@@ -2,6 +2,7 @@ SQLAlchemy==2.0.2
 fastapi[all]==0.90.0
 fastapi-jwt-auth[asymmetric]
 pydantic~=1.10.2
+uvicorn
 pydantic[email]~=1.10.2
 passlib[bcrypt]
 tenacity~=8.1.0
@@ -32,4 +33,4 @@ celery
 raven
 faker
 pytest
-# aiogram>=3.0.0b6
+aiogram==3.0.0b6

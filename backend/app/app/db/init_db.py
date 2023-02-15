@@ -1,17 +1,17 @@
 import pathlib
 
+from asyncpg import Connection
+from loguru import logger
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app import crud
 from app import schemas
 from app.core.config import get_app_settings
 from app.db.session import Base
+from app.db.session import SessionLocal
 from app.db.session import engine
 from app.db.session import pg_database
-from app.db.session import SessionLocal
-from app.models.user.role import UserRole
-from asyncpg import Connection
-from loguru import logger
-from sqlalchemy.ext.asyncio import AsyncConnection
-from sqlalchemy.ext.asyncio import AsyncSession
+from app.models.user_role import UserRole
 
 
 async def execute_sql_files(path: pathlib.Path, conn: Connection):
@@ -23,13 +23,10 @@ async def execute_sql_files(path: pathlib.Path, conn: Connection):
         logger.info(f"{path.name}: {e.args}")
 
 
-async def create_all_models():
+async def create_all_models(drop=False):
     async with engine.begin() as conn:
-        conn: AsyncConnection
-        try:
-            await conn.run_sync(Base.metadata.create_all)
-        except Exception as e:
-            logger.info(e.args)
+        m = Base.metadata
+        await conn.run_sync(m.create_all if not drop else m.drop_all)
 
 
 async def create_first_superuser(db: AsyncSession):
@@ -56,6 +53,7 @@ async def create_first_superuser(db: AsyncSession):
 
 
 async def init_db():
+    # await create_all_models(drop=True)
     await create_all_models()
     conn: Connection = await pg_database.get_connection()
     for sql_f in pathlib.Path(

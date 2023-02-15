@@ -54,7 +54,7 @@ def bot_webapp_main():
 
     dispatcher[
         "base_url"
-    ] = f"https://{get_app_settings().DOMAIN}/{get_app_settings().DOMAIN_PORT}"
+    ] = f"https://{get_app_settings().DOMAIN}/{get_app_settings().PORT}"
     dispatcher.startup.register(on_startup)
 
     app = Application()

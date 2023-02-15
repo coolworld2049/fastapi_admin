@@ -34,7 +34,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self.model = model
 
     async def get(self, db: AsyncSession, id: Any) -> Optional[ModelType]:
-        q = select(self.model).where(self.model.id == id)
+        q: Select = select(self.model).where(self.model.id == id)
         result: Result = await db.execute(q)
         return result.scalar()
 

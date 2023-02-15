@@ -1,8 +1,4 @@
-import {
-  LoginApi,
-  Configuration,
-  UsersApi,
-} from "../generated";
+import { LoginApi, Configuration, UsersApi } from "../generated";
 
 const readApiBaseFromEnv = (): string => {
   // Get API base URL from env
@@ -13,13 +9,13 @@ const readApiBaseFromEnv = (): string => {
   ) {
     return `https://${document.location.host}`;
   } else if (process.env.DOMAIN && process.env.PORT) {
-    return `http://${process.env.DOMAIN}:${process.env.PORT}`
+    return `http://${process.env.DOMAIN}:${process.env.PORT}`;
   }
-  return "http://localhost:8000";
+  return "https://localhost:80";
 };
 
 export const readTimeZone = () => {
-  return "Europe/Moscow";
+  return <string>process.env.TZ;
 };
 
 const readAccessToken = async (): Promise<string> => {

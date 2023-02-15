@@ -2,17 +2,10 @@ from datetime import datetime
 from datetime import timedelta
 from typing import List
 
-from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
-from passlib.context import CryptContext
 
 from app import schemas
 from app.core.config import get_app_settings
-
-cryptContext = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2Scheme = OAuth2PasswordBearer(
-    tokenUrl=f"{get_app_settings().api_v1}/login/access-token",
-)
 
 
 def create_access_token(

@@ -3,68 +3,39 @@ from difflib import SequenceMatcher
 from typing import Optional
 
 from loguru import logger
-from pydantic import EmailStr, Field, validator, root_validator, BaseModel
+from pydantic import EmailStr, validator, root_validator, BaseModel
 
 from app.models import UserRole
 from app.resources.reserved_username import reserved_usernames_list
 
-
-password_exp = r"^(?=.*[A-Z].*[A-Z])(?=.*[!@#$&*])(?=.*[0-9].*[0-9])(?=.*[a-z].*[a-z].*[a-z]).{11,}$"
-email_exp = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"
+password_exp = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+password_conditions = """
+Minimum 8 characters, at least one uppercase letter, one lowercase letter, one number and one special character
+"""
 username_exp = "[A-Za-z_0-9]*"
 
 
-class UserValidator:
-    @staticmethod
-    def values_match_ratio(a, b, match_value: float):
-        return SequenceMatcher(None, a, b).ratio() < match_value
+class UserBase(BaseModel):
+    email: Optional[EmailStr]
+    role: UserRole = UserRole.user.name
+    username: Optional[str]
+    full_name: Optional[str]
+    age: Optional[int]
+    avatar: Optional[str]
+    phone: Optional[str]
+    is_active: bool = True
+    is_superuser: bool = False
 
-    @classmethod
-    def check_valid_username(cls, values):
-        assert re.match(email_exp, values.get("email")), "Invalid email"
-        assert re.match(
-            username_exp,
-            values.get("username"),
-        ), "Invalid characters in username"
-
-    @classmethod
-    def check_password_strongness(cls, values):
-        try:
-            assert cls.values_match_ratio(
-                values.get("username"), values.get("password"), 0.6
-            ), "Password must not match username"
-            assert cls.values_match_ratio(
-                values.get("password"), values.get("email").split("@")[0], 0.4
-            ), "Password must not match email"
-        except AssertionError as e:
-            logger.error(e.args)
-
-    @root_validator()
-    def validate_all(cls, values):
-        try:
-            assert values.get("email")
-            assert values.get("role")
-            assert values.get("username")
-        except AssertionError as e:
-            logger.error(e.args)
-
-        cls.check_valid_username(values)
-
-        if values.get("username") and values.get("password") and values.get("email"):
-            cls.check_password_strongness(values)
-        return values
+    class Config:
+        use_enum_values = True
 
     @validator("username")
     def validate_username(cls, value):  # noqa
+        assert re.match(
+            username_exp,
+            value,
+        ), "Invalid characters in username"
         assert value not in reserved_usernames_list, "This username is reserved"
-        return value
-
-    @validator("password")
-    def validate_password(cls, value):  # noqa
-        assert re.match(password_exp, value), (
-            "Make sure the password is: 11 characters long,"
-            " 2 uppercase and 3 lowercase letters, 1 special char, 2 numbers"
-        )
         return value
 
     @validator("phone")
@@ -75,25 +46,47 @@ class UserValidator:
         return v
 
 
-class UserBase(BaseModel, UserValidator):
-    email: EmailStr
-    role: UserRole = Field(UserRole.user.name)
-    username: str
-    full_name: Optional[str]
-    age: Optional[int] = None
-    avatar: Optional[str] = None
-    phone: Optional[str] = None
-    is_active: bool = True
-    is_superuser: bool = False
-
-    class Config:
-        use_enum_values = True
-
-
 # Properties to receive via API on creation
 class UserCreate(UserBase):
     password: str
     password_confirm: str
+
+    @classmethod
+    def check_password_strongness(cls, values):
+        def values_match_ratio(a, b):
+            return SequenceMatcher(None, a, b).ratio() if a and b else None
+
+        assert values.get("email"), 'email is None'
+        assert values.get("username"), 'username is None'
+        assert values.get("password"), 'password is None'
+
+        username_password_match: float = values_match_ratio(
+            values.get("username"),
+            values.get("password"),
+        )
+        assert username_password_match < 0.5, "Password must not match username"
+
+        email_password_match: float = values_match_ratio(
+            values.get("email").split("@")[0],
+            values.get("password"),
+        )
+        assert email_password_match < 0.5, "Password must not match email"
+        return values
+
+    @root_validator(pre=True)
+    def validate_all(cls, values):
+        if values.get("password_confirm"):
+            assert values.get("password") == values.get("password_confirm"), 'Passwords mismatch.'
+        if values.get("id") is None:
+            try:
+                return cls.check_password_strongness(values)
+            except AssertionError as e:
+                logger.error(e.args)
+
+    @validator("password")
+    def validate_password(cls, value):  # noqa
+        assert re.match(password_exp, value, flags=re.M), password_conditions
+        return value
 
 
 # Properties to receive via API on update
@@ -104,19 +97,15 @@ class UserUpdate(UserBase):
 class UserInDBBase(UserBase):
     id: Optional[int] = None
 
-    class Config(UserBase.Config):
+    class Config:
         orm_mode = True
-
-
-# Additional properties stored in DB but not returned by API
-class UserInDB(UserInDBBase):
-    hashed_password: str
 
 
 # Additional properties to return via API
 class User(UserInDBBase):
-    class Config:
-        fields = {
-            "is_superuser": {"exclude": True},
-            "hashed_password": {"exclude": True},
-        }
+    pass
+
+
+# Additional properties stored in DB but not returned by API
+class UserInDB(UserInDBBase):
+    _hashed_password: str

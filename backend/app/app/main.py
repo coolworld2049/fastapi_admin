@@ -5,10 +5,10 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.openapi.docs import get_swagger_ui_html
 from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
-from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
-from starlette.responses import FileResponse
+
 from starlette.staticfiles import StaticFiles
+from starlette.templating import Jinja2Templates
 
 from app.api.api_v1.api import api_router
 from app.api.errors.http_error import http_error_handler
@@ -25,6 +25,8 @@ project_root = current_file_dir.parent
 project_root_absolute = project_root.resolve()
 project_static_path = project_root_absolute / "app/static"
 project_static_html_path = project_static_path / "html/"
+
+templates = Jinja2Templates(directory=project_static_html_path)
 
 
 def get_application() -> FastAPI:
@@ -77,7 +79,16 @@ app = get_application()
 
 @app.get("/")
 async def root(request: Request):
-    return FileResponse(path=project_static_html_path / "index.html")
+    response = templates.TemplateResponse(
+        "index.html",
+        context={
+            "request": request,
+            "proto": 'http',
+            "host": get_app_settings().DOMAIN,
+            "port": get_app_settings().PORT,
+        },
+    )
+    return response
 
 
 @app.get("/docs/dark-theme", include_in_schema=False)

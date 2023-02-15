@@ -8,7 +8,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 from starlette.requests import Request
-from starlette.responses import RedirectResponse, Response
+from starlette.responses import RedirectResponse
 
 from app import crud
 from app import models
@@ -23,7 +23,6 @@ router = APIRouter()
 
 @router.post("/login/access-token", response_model=schemas.Token)
 async def login_access_token(
-    response: Response,
     db: AsyncSession = Depends(database.get_db),
     form_data: OAuth2PasswordRequestForm = Depends(),
 ) -> Any:
