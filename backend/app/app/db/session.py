@@ -5,7 +5,6 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import sessionmaker
 
 engine: AsyncEngine = create_async_engine(
@@ -15,7 +14,7 @@ engine: AsyncEngine = create_async_engine(
     json_serializer=jsonable_encoder,
 )
 
-Base: DeclarativeBase = declarative_base()
+Base = declarative_base()
 Base.metadata.bind = engine
 
 SessionLocal = sessionmaker(

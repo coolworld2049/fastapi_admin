@@ -3,11 +3,9 @@ from typing import Any
 from typing import Optional
 
 from loguru import logger
-from sqlalchemy import Row
-from sqlalchemy import RowMapping
 from sqlalchemy import and_
 from sqlalchemy import select
-from sqlalchemy.engine import Result
+from sqlalchemy.engine import Result, RowMapping, Row
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select

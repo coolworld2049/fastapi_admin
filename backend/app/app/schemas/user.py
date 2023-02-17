@@ -3,7 +3,7 @@ from difflib import SequenceMatcher
 from typing import Optional
 
 from loguru import logger
-from pydantic import EmailStr, validator, root_validator, BaseModel
+from pydantic import EmailStr, validator, root_validator, BaseModel, PrivateAttr
 
 from app.models import UserRole
 from app.resources.reserved_username import reserved_usernames_list
@@ -23,8 +23,8 @@ class UserBase(BaseModel):
     age: Optional[int]
     avatar: Optional[str]
     phone: Optional[str]
-    is_active: bool = True
-    is_superuser: bool = False
+    _is_active: bool = True
+    _is_superuser: bool = False
 
     class Config:
         use_enum_values = True

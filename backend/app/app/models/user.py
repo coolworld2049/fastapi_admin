@@ -1,6 +1,5 @@
 from sqlalchemy import BigInteger
 from sqlalchemy import Boolean
-from sqlalchemy import CheckConstraint
 from sqlalchemy import Column
 from sqlalchemy import SmallInteger
 from sqlalchemy import String
@@ -15,10 +14,6 @@ from app.models.mixins import TimestampsMixin
 
 class User(BaseModel, TimestampsMixin):
     __tablename__ = "user"
-    __table_args__ = (
-        CheckConstraint("full_name <> (role)::text", 'full_name != role'),
-        CheckConstraint("username <> (role)::text", 'username != role'),
-    )
     id = Column(BigInteger, primary_key=True)
     email = Column(Text, nullable=False, unique=True)
     hashed_password = Column(Text)

@@ -11,10 +11,8 @@ from app.db.session import Base
 from app.schemas import RequestParams
 from pydantic import BaseModel
 from sqlalchemy import func
-from sqlalchemy import Row
-from sqlalchemy import RowMapping
 from sqlalchemy import select
-from sqlalchemy.engine import Result
+from sqlalchemy.engine import Result, RowMapping, Row
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 
