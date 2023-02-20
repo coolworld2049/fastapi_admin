@@ -28,10 +28,6 @@ class UserBase(BaseModel):
 
     class Config:
         use_enum_values = True
-        fields = {
-            "is_active": {"exclude": True},
-            "is_superuser": {"exclude": True},
-        }
 
     @validator("username")
     def validate_username(cls, value):  # noqa
@@ -120,6 +116,13 @@ class UserInDBBase(UserBase):
 # Additional properties to return via API
 class User(UserInDBBase):
     role: Optional[UserRole]
+
+    class Config:
+        use_enum_values = True
+        fields = {
+            "is_active": {"exclude": True},
+            "is_superuser": {"exclude": True},
+        }
 
 
 # Additional properties stored in DB but not returned by API
