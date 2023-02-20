@@ -1,4 +1,4 @@
-create or replace function create_user(db_user text, password text, current_user_role text)
+create or replace function create_user_in_role(db_user text, password text, current_user_role text)
   returns void as $$
 declare
     query text := 'create user ';

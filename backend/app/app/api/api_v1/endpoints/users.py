@@ -21,13 +21,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
 
-exclude = {
-    "response_model_exclude_defaults": True,
-    "response_model_exclude_unset": True
-}
 
-
-@router.get("/", response_model=List[schemas.User], **exclude)
+@router.get("/", response_model=List[schemas.User])
 async def read_users(
     response: Response,
     db: AsyncSession = Depends(database.get_db),
@@ -46,7 +41,7 @@ async def read_users(
     return users
 
 
-@router.post("/", response_model=schemas.User, **exclude)
+@router.post("/", response_model=schemas.User)
 async def create_user(
     *,
     db: AsyncSession = Depends(database.get_db),
@@ -72,7 +67,7 @@ async def create_user(
     return new_user
 
 
-@router.put("/me", response_model=schemas.User, **exclude)
+@router.put("/me", response_model=schemas.User)
 async def update_user_me(
     *,
     db: AsyncSession = Depends(database.get_db),
@@ -93,7 +88,7 @@ async def update_user_me(
     return user
 
 
-@router.get("/me", response_model=schemas.User, **exclude)
+@router.get("/me", response_model=schemas.User)
 async def read_user_me(
     response: Response,
     db: AsyncSession = Depends(database.get_db),
@@ -107,7 +102,7 @@ async def read_user_me(
     return user
 
 
-@router.get("/{id}", response_model=schemas.User, **exclude)
+@router.get("/{id}", response_model=schemas.User)
 async def read_user_by_id(
     id: int,
     current_user: models.User = Depends(auth.get_current_active_user),  # noqa
@@ -120,7 +115,7 @@ async def read_user_by_id(
     return user
 
 
-@router.put("/{id}", response_model=schemas.User, **exclude)
+@router.put("/{id}", response_model=schemas.User)
 async def update_user(
     *,
     id: int,
@@ -141,7 +136,7 @@ async def update_user(
     return user
 
 
-@router.delete("/{id}", response_model=schemas.User, **exclude)
+@router.delete("/{id}", response_model=schemas.User)
 async def delete_user(
     *,
     id: int,
@@ -163,7 +158,7 @@ async def delete_user(
     return user
 
 
-@router.get("/role/{rolname}", response_model=List[schemas.User], **exclude)
+@router.get("/role/{rolname}", response_model=List[schemas.User])
 async def read_users_by_role_id(
     response: Response,
     rolname: str = Query(None),

@@ -2,6 +2,7 @@ from collections.abc import Sequence
 from typing import Any
 from typing import Optional
 
+from fastapi.encoders import jsonable_encoder
 from loguru import logger
 from sqlalchemy import and_
 from sqlalchemy import select
@@ -20,18 +21,13 @@ from app.services.security import verify_password
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
-    @staticmethod
-    async def password_to_hash(_data: UserCreate | UserUpdate):
-        data = _data.dict()
-        if data.get("password"):
-            hashed_password = get_password_hash(data.get("password"))
-            data.update({"hashed_password": hashed_password})
-            data.pop("password")
-            data.pop("password_confirm")
-        return User(**data)  # noqa
 
     async def create(self, db: AsyncSession, *, obj_in: UserCreate) -> User:
-        db_obj = await self.password_to_hash(obj_in)
+        obj_in_data = obj_in.dict(exclude_none=True)
+        obj_in_data.update({"hashed_password": get_password_hash(obj_in.password)})
+        obj_in_data.pop("password")
+        obj_in_data.pop("password_confirm")
+        db_obj = self.model(**obj_in_data) # noqa
         try:
             db.add(db_obj)
             await db.commit()
@@ -48,8 +44,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db_obj: User,
         obj_in: UserUpdate | dict[str, Any],
     ) -> User:
-        db_obj = await self.password_to_hash(obj_in)
-        result = await super().update(db, db_obj=db_obj, obj_in=db_obj)
+        obj_in_data = obj_in.dict(exclude_none=True)
+        db_obj.hashed_password = get_password_hash(obj_in_data.get("password"))
+        result = await super().update(db, db_obj=db_obj, obj_in=obj_in)
         return result
 
     # noinspection PyMethodMayBeStatic

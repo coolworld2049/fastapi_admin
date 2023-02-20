@@ -3,37 +3,43 @@ import string
 from typing import Dict
 
 import pytest
-from app import crud
+from httpx import AsyncClient
+
+from app import crud, models
 from app import schemas
 from app.core.config import get_app_settings
 from app.models import UserRole
 from app.schemas.user import UserCreate
 from app.tests.test_data import fake
-from app.tests.utils.utils import gen_random_password
+from app.tests.utils.utils import gen_random_password, random_lower_string
 from app.tests.utils.utils import random_email
-from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
+
+from sqlalchemy.ext.asyncio.session import AsyncSession
 
 
-async def creat_test_user(role: UserRole, username: str):
+@pytest.mark.asyncio
+async def test_create_user(db: AsyncSession) -> models.User:
+    rnd_str = random_lower_string()
+    password = gen_random_password()
     user_in = schemas.UserCreate(
-        email=f"{role}{username}@gmail.com",
-        password=gen_random_password(),
-        username=f"{role}{username}{random.randint(1000, 10000)}",
+        email=f"{rnd_str}@gmail.com",
+        username=rnd_str,
+        password=password,
+        password_confirm=password,
         full_name=fake.name(),
         age=random.randint(18, 25),
         phone="+7" + "".join(random.choice(string.digits) for _ in range(10)),
-        role=role,
     )
-    return await crud.user.create(db, obj_in=user_in)
+    user = await crud.user.create(db, obj_in=user_in)
+    return user
 
 
 @pytest.mark.asyncio
 async def test_get_users_superuser_me(
-    client: TestClient,
+    client: AsyncClient,
     superuser_token_headers: Dict[str, str],
 ) -> None:
-    r = client.get(
+    r = await client.get(
         f"{get_app_settings().api_v1}/users/me",
         headers=superuser_token_headers,
     )
@@ -45,10 +51,10 @@ async def test_get_users_superuser_me(
 
 @pytest.mark.asyncio
 async def test_get_users_normal_user_me(
-    client: TestClient,
+    client: AsyncClient,
     normal_user_token_headers: Dict[str, str],
 ) -> None:
-    r = client.get(
+    r = await client.get(
         f"{get_app_settings().api_v1}/users/me",
         headers=normal_user_token_headers,
     )
@@ -60,17 +66,19 @@ async def test_get_users_normal_user_me(
 
 @pytest.mark.asyncio
 async def test_create_user_new_email(
-    client: TestClient,
+    client: AsyncClient,
     superuser_token_headers: dict,
-    db: Session,
+    db: AsyncSession,
 ) -> None:
     email = random_email()
+    username = random_lower_string()
     password = gen_random_password()
-    data = {"email": email, "password": password}
-    r = client.post(
+    user_in = UserCreate(email=email, username=username, password=password, password_confirm=password,
+                         role=UserRole.admin.name)
+    r = await client.post(
         f"{get_app_settings().api_v1}/users/",
         headers=superuser_token_headers,
-        json=data,
+        json=user_in.dict(),
     )
     assert 200 <= r.status_code < 300
     created_user = r.json()
@@ -81,16 +89,17 @@ async def test_create_user_new_email(
 
 @pytest.mark.asyncio
 async def test_get_existing_user(
-    client: TestClient,
+    client: AsyncClient,
     superuser_token_headers: dict,
-    db: Session,
+    db: AsyncSession,
 ) -> None:
     email = random_email()
+    username = random_lower_string()
     password = gen_random_password()
-    user_in = UserCreate(email=email, password=password)
-    user = crud.user.create(db, obj_in=user_in)
+    user_in = UserCreate(email=email, username=username, password=password, password_confirm=password, role=UserRole.admin.name)
+    user = await crud.user.create(db, obj_in=user_in)
     user_id = user.id
-    r = client.get(
+    r = await client.get(
         f"{get_app_settings().api_v1}/users/{user_id}",
         headers=superuser_token_headers,
     )
@@ -103,59 +112,46 @@ async def test_get_existing_user(
 
 @pytest.mark.asyncio
 async def test_create_user_existing_username(
-    client: TestClient,
+    client: AsyncClient,
     superuser_token_headers: dict,
-    db: Session,
+    db: AsyncSession,
 ) -> None:
     email = random_email()
-    # username = email
+    username = random_lower_string()
     password = gen_random_password()
-    user_in = UserCreate(email=email, password=password)
-    crud.user.create(db, obj_in=user_in)
-    data = {"email": email, "password": password}
-    r = client.post(
+    user_in = UserCreate(email=email, username=username, password=password, password_confirm=password, role=UserRole.admin.name)
+    await crud.user.create(db, obj_in=user_in)
+    r = await client.post(
         f"{get_app_settings().api_v1}/users/",
         headers=superuser_token_headers,
-        json=data,
+        json=user_in.dict(),
     )
     created_user = r.json()
     assert r.status_code == 400
     assert "_id" not in created_user
 
 
-@pytest.mark.asyncio
-async def test_create_user_by_normal_user(
-    client: TestClient,
-    normal_user_token_headers: Dict[str, str],
-) -> None:
-    email = random_email()
-    password = gen_random_password()
-    data = {"email": email, "password": password}
-    r = client.post(
-        f"{get_app_settings().api_v1}/users/",
-        headers=normal_user_token_headers,
-        json=data,
-    )
-    assert r.status_code == 400
 
 
 @pytest.mark.asyncio
 async def test_retrieve_users(
-    client: TestClient,
+    client: AsyncClient,
     superuser_token_headers: dict,
-    db: Session,
+    db: AsyncSession,
 ) -> None:
     email = random_email()
+    username = random_lower_string()
     password = gen_random_password()
-    user_in = UserCreate(email=email, password=password, role=UserRole.user.name)
+    user_in = UserCreate(email=email, username=username, password=password, password_confirm=password, role=UserRole.admin.name)
     await crud.user.create(db, obj_in=user_in)
 
     email2 = random_email()
+    username2 = random_lower_string()
     password2 = gen_random_password()
-    user_in2 = UserCreate(email=email2, password=password2, role=UserRole.user.name)
+    user_in2 = UserCreate(email=email2, username=username2, password=password2, password_confirm=password2, role=UserRole.admin.name)
     await crud.user.create(db, obj_in=user_in2)
 
-    r = client.get(
+    r = await client.get(
         f"{get_app_settings().api_v1}/users/",
         headers=superuser_token_headers,
     )

@@ -18,7 +18,7 @@ def create_start_app_handler(
     settings: AppSettings,
 ) -> Callable:
     async def start_app() -> None:
-        local_logger.info("<m>Application startup</m>")
+        local_logger.warning("<m>Application startup!</m>")
         if get_app_settings().APP_ENV.name == "dev":
             await init_db()
 
@@ -29,10 +29,10 @@ def create_start_app_handler(
 def create_stop_app_handler(app: FastAPI) -> Callable:
     async def stop_app() -> None:
         SessionLocal.close_all()
-        local_logger.info("all sessionmaker session closed")
+        local_logger.warning("all sessionmaker session closed")
 
         await engine.dispose()
-        local_logger.info("engine disposed")
-        local_logger.info("<y>Application shutdown!</y>")
+        local_logger.warning("engine disposed")
+        local_logger.warning("<y>Application shutdown!</y>")
 
     return stop_app

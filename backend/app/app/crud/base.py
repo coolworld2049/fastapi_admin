@@ -7,6 +7,8 @@ from typing import Type
 from typing import TypeVar
 from typing import Union
 
+from fastapi.encoders import jsonable_encoder
+
 from app.db.session import Base
 from app.schemas import RequestParams
 from pydantic import BaseModel
@@ -79,7 +81,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return r, total.fetchone().count
 
     async def create(self, db: AsyncSession, *, obj_in: CreateSchemaType) -> ModelType:
-        # obj_in_data = jsonable_encoder(obj_in)
+        obj_in_data = jsonable_encoder(obj_in)
         db_obj = self.model(**obj_in.dict(exclude_none=True))
         db.add(db_obj)
         await db.commit()
@@ -93,7 +95,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db_obj: ModelType,
         obj_in: Union[UpdateSchemaType, Dict[str, Any]],
     ) -> ModelType:
-        obj_data: dict = db_obj.to_dict()
+        obj_data = jsonable_encoder(db_obj)
         if isinstance(obj_in, dict):
             update_data = obj_in
         else:

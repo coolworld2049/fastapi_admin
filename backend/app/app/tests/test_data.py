@@ -11,41 +11,45 @@ from sqlalchemy.ext.asyncio import AsyncConnection
 
 from app import crud
 from app import schemas
-from app.db.init_db import init_db
-from app.db.session import Base
-from app.db.session import SessionLocal
-from app.db.session import engine
-from app.db.session import pg_database
-from app.models.user_role import UserRole
+from app.db.init_db import create_all_models, execute_sql_files, create_first_superuser
 from app.models.user import User
+from app.models.user_role import UserRole
+from app.tests.db.session import TestingSessionLocal, test_engine, TestBase, test_pg_database
 from app.tests.utils.utils import gen_random_password
 
 fake: Faker = Faker()
 
 
+async def override_init_db():
+    await create_all_models(test_engine)
+    await execute_sql_files()
+    async with TestingSessionLocal() as db:
+        await create_first_superuser(db)
+
+
 async def truncate_tables():
-    asyncpg_conn: Connection = await pg_database.get_connection()
+    asyncpg_conn: Connection = await test_pg_database.get_connection()
     q_truncate = f"""select truncate_tables('postgres')"""
     logger.info(q_truncate)
     try:
         await asyncpg_conn.execute(q_truncate)
     except UndefinedFunctionError:
-        await init_db()
+        await override_init_db()
         await asyncpg_conn.execute(q_truncate)
 
 
 async def recreate_all():
-    async with engine.begin() as conn:
+    async with test_engine.begin() as conn:
         conn: AsyncConnection
         try:
-            Base.metadata.bind = engine
-            await conn.run_sync(Base.metadata.drop_all, checkfirst=True)
+            TestBase.metadata.bind = test_engine
+            await conn.run_sync(TestBase.metadata.drop_all, checkfirst=True)
         except Exception as e:
             logger.error(f"metadata.drop_all: {e.args}")
-    await init_db()
+    await override_init_db()
 
 
-async def create_users(users_count=10):
+async def create_users(users_count=5):
     ration_teachers_to_students = users_count // 2
     users: list[User] = []
     users_cred_list = []
@@ -56,7 +60,7 @@ async def create_users(users_count=10):
         if us >= ration_teachers_to_students:
             role = UserRole.user.name
 
-        password = gen_random_password(us)
+        password = gen_random_password()
         user_in = schemas.UserCreate(
             email=f"{role}{us}@gmail.com",
             password=password,
@@ -70,7 +74,7 @@ async def create_users(users_count=10):
         users_cred_list.append(
             {user_in.role: {"email": user_in.email, "password": user_in.password}},
         )
-        async with SessionLocal() as db:
+        async with TestingSessionLocal() as db:
             user_in_obj = await crud.user.create(db, obj_in=user_in)
             users.append(user_in_obj)
 

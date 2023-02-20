@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 from logging.handlers import RotatingFileHandler
 from typing import Any, Optional
@@ -29,8 +30,8 @@ class AppSettings(BaseAppSettings):
     BACKEND_CORS_ORIGINS: list[str]
     JWT_ALGORITHM: str
     JWT_SECRET_KEY: str
-    JWT_PRIVATE_KEY: Optional[str]
-    JWT_PUBLIC_KEY: Optional[str]
+    JWT_PRIVATE_KEY: Optional[str]  # ?
+    JWT_PUBLIC_KEY: Optional[str]  # ?
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     REFRESH_TOKEN_EXPIRE_MINUTES: int
     EMAIL_RESET_TOKEN_EXPIRE_HOURS: int
@@ -53,8 +54,6 @@ class AppSettings(BaseAppSettings):
 
     REDIS_HOST: str
     REDIS_PORT: int
-
-    BOT_TOKEN: str
 
     LOGGING_LEVEL: str = "INFO"
     LOGGERS: tuple[str, str] = ("uvicorn.asgi", "uvicorn.access")
@@ -80,8 +79,12 @@ class AppSettings(BaseAppSettings):
         return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.PG_HOST}:{self.PG_PORT}/{self.POSTGRES_DB}"
 
     @property
-    def get_asyncpg_postgres_dsn(self):
+    def get_postgres_asyncpg_dsn(self):
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.PG_HOST}:{self.PG_PORT}/{self.POSTGRES_DB}"
+
+    @property
+    def get_test_postgres_asyncpg_dsn(self):
+        return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.PG_HOST}:{self.PG_PORT}/test"
 
     @property
     def get_rabbitmq_dsn(self):

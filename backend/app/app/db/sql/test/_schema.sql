@@ -9,7 +9,7 @@ create table if not exists "user"
     id bigserial primary key,
     email text unique not null,
     hashed_password text,
-    "role" user_role not null default 'anon'::user_role ,
+    "role" user_role not null default 'anon',
     full_name text,
     username text unique not null,
     age smallint,

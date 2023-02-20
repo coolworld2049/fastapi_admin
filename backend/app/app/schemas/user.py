@@ -19,6 +19,7 @@ username_exp = "[A-Za-z_0-9]*"
 class UserBase(BaseModel):
     email: Optional[EmailStr]
     username: Optional[str]
+    role: Optional[UserRole]
     full_name: Optional[str]
     age: Optional[int]
     avatar: Optional[str]
@@ -57,25 +58,22 @@ class UserCreate(UserBase):
         def values_match_ratio(a, b):
             return SequenceMatcher(None, a, b).ratio() if a and b else None
 
-        assert values.get("email"), "email is None"
-        assert values.get("username"), "username is None"
-        assert values.get("password"), "password is None"
+        if values.get("email") and values.get("username") and values.get("password"):
+            username_password_match: float = values_match_ratio(
+                values.get("username"),
+                values.get("password"),
+            )
+            assert username_password_match < 0.5, "Password must not match username"
 
-        username_password_match: float = values_match_ratio(
-            values.get("username"),
-            values.get("password"),
-        )
-        assert username_password_match < 0.5, "Password must not match username"
-
-        email_password_match: float = values_match_ratio(
-            values.get("email").split("@")[0],
-            values.get("password"),
-        )
-        assert email_password_match < 0.5, "Password must not match email"
+            email_password_match: float = values_match_ratio(
+                values.get("email").split("@")[0],
+                values.get("password"),
+            )
+            assert email_password_match < 0.5, "Password must not match email"
         return values
 
     @root_validator()
-    def validate_all(cls, values):
+    def validate_all_fields(cls, values):
         if values.get("password_confirm"):
             assert values.get("password") == values.get(
                 "password_confirm"
@@ -100,7 +98,7 @@ class UserCreateOpen(BaseModel):
 
 
 # Properties to receive via API on update
-class UserUpdate(UserBase):
+class UserUpdate(UserCreate):
     pass
 
 
@@ -115,12 +113,10 @@ class UserInDBBase(UserBase):
 
 # Additional properties to return via API
 class User(UserInDBBase):
-    role: Optional[UserRole]
 
     class Config:
         use_enum_values = True
         fields = {
-            "is_active": {"exclude": True},
             "is_superuser": {"exclude": True},
         }
 

@@ -16,7 +16,6 @@ class AppEnvTypes(str, Enum):
 
 class BaseAppSettings(BaseSettings):
     APP_ENV: AppEnvTypes = os.getenv("APP_ENV", AppEnvTypes.dev.name)
-    assert APP_ENV in [x for x in AppEnvTypes], ValueError()
 
     class Config:
         env_file = ".env"

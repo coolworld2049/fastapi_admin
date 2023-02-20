@@ -2,7 +2,7 @@ import pathlib
 
 from asyncpg import Connection
 from loguru import logger
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine
 
 from app import crud
 from app import schemas
@@ -14,7 +14,7 @@ from app.db.session import pg_database
 from app.models.user_role import UserRole
 
 
-async def execute_sql_files(path: pathlib.Path, conn: Connection):
+async def _execute_sql_files(path: pathlib.Path, conn: Connection):
     try:
         with open(path, encoding="utf-8") as rf:
             res = await conn.execute(rf.read())
@@ -23,10 +23,11 @@ async def execute_sql_files(path: pathlib.Path, conn: Connection):
         logger.info(f"{path.name}: {e.args}")
 
 
-async def create_all_models(drop=False):
-    async with engine.begin() as conn:
+async def create_all_models(_engine: AsyncEngine):
+    async with _engine.begin() as conn:
         m = Base.metadata
-        await conn.run_sync(m.create_all if not drop else m.drop_all)
+        await conn.run_sync(m.create_all)
+        logger.info("Base.metadata.create_all")
 
 
 async def create_first_superuser(db: AsyncSession):
@@ -52,15 +53,16 @@ async def create_first_superuser(db: AsyncSession):
     return super_user
 
 
-async def init_db():
-    # await create_all_models(drop=True)
-    await create_all_models()
+async def execute_sql_files(path_to_sql_dir: pathlib.Path = pathlib.Path(__file__).parent.__str__() + "/sql"):
     conn: Connection = await pg_database.get_connection()
-    for sql_f in pathlib.Path(
-        pathlib.Path(__file__).parent.__str__() + "/sql",
-    ).iterdir():
+    for sql_f in pathlib.Path(path_to_sql_dir).iterdir():
         if not sql_f.is_dir():
-            await execute_sql_files(sql_f, conn)
+            await _execute_sql_files(sql_f, conn)
     await conn.close()
+
+
+async def init_db():
+    await create_all_models(engine)
+    await execute_sql_files()
     async with SessionLocal() as db:
         await create_first_superuser(db)

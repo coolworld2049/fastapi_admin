@@ -93,7 +93,7 @@ async def is_rolname_exist(db: AsyncSession, current_user: User):
     )
 
     check_result = check_q_result.fetchall()
-    if get_app_settings().DEBUG:
+    if get_app_settings().APP_ENV in ['dev', 'test']:
         logger.info(
             f"{f'{current_user.username} rolname exist' if check_result else f'{current_user.username} rolname not exist'}",
         )
@@ -111,7 +111,7 @@ async def create_user_in_role(db: AsyncSession, current_user: User):
     }
     await db.execute(text(create_db_user_q), params=params)
     await db.commit()
-    if get_app_settings().DEBUG:
+    if get_app_settings().APP_ENV in ['dev', 'test']:
         logger.info("created")
 
 
@@ -121,26 +121,26 @@ async def drop_user_in_role(db: AsyncSession | Connection, current_user: User):
         await db.execute(drop_db_user_q)
     elif isinstance(db, AsyncSession):
         await db.execute(text(drop_db_user_q))
-    if get_app_settings().DEBUG:
+    if get_app_settings().APP_ENV in ['dev', 'test']:
         logger.info(current_user.username)
 
 
 async def get_session_user(db: AsyncSession):
     check_session_role_q = """select session_user, current_user"""
     check_session_role_q_result: Result = await db.execute(text(check_session_role_q))
-    if get_app_settings().DEBUG:
+    if get_app_settings().APP_ENV in ['dev', 'test']:
         logger.info(check_session_role_q_result.scalar())
 
 
 async def set_session_user(db: AsyncSession, current_user: User):
     set_db_user_q = """set session authorization """ + current_user.username.lower()
-    if get_app_settings().DEBUG:
+    if get_app_settings().APP_ENV in ['dev', 'test']:
         logger.info(current_user.username)
     await db.execute(text(set_db_user_q))
 
 
 async def reset_session_user(db: AsyncSession):
     reset_q = """reset session authorization"""
-    if get_app_settings().DEBUG:
+    if get_app_settings().APP_ENV in ['dev', 'test']:
         logger.info("reset")
     await db.execute(text(reset_q))
