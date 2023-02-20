@@ -10,7 +10,6 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 
-from app.core.config import get_app_settings
 from app.crud.base import CRUDBase
 from app.models.user import User
 from app.schemas import RequestParams
@@ -21,7 +20,6 @@ from app.services.security import verify_password
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
-
     @staticmethod
     async def password_to_hash(_data: UserCreate | UserUpdate):
         data = _data.dict()
@@ -30,16 +28,17 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             data.update({"hashed_password": hashed_password})
             data.pop("password")
             data.pop("password_confirm")
-        return User(**data) # noqa
+        return User(**data)  # noqa
 
     async def create(self, db: AsyncSession, *, obj_in: UserCreate) -> User:
         db_obj = await self.password_to_hash(obj_in)
         try:
             db.add(db_obj)
             await db.commit()
+            await db.refresh(db_obj)
         except SQLAlchemyError as e:
             await db.rollback()
-            logger.error(e.__dict__['orig']) if get_app_settings().APP_ENV == 'dev' else None
+            logger.exception(e.__dict__["orig"])
         return db_obj
 
     async def update(

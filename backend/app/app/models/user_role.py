@@ -2,5 +2,7 @@ from app.models import EnumMixin
 
 
 class UserRole(str, EnumMixin):
-    admin = 'admin'
-    user = 'user'
+    admin = "admin"
+    user = "user"
+
+

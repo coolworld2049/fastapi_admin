@@ -1,9 +1,10 @@
 import re
+from datetime import datetime
 from difflib import SequenceMatcher
 from typing import Optional
 
 from loguru import logger
-from pydantic import EmailStr, validator, root_validator, BaseModel, PrivateAttr
+from pydantic import EmailStr, validator, root_validator, BaseModel
 
 from app.models import UserRole
 from app.resources.reserved_username import reserved_usernames_list
@@ -17,17 +18,20 @@ username_exp = "[A-Za-z_0-9]*"
 
 class UserBase(BaseModel):
     email: Optional[EmailStr]
-    role: UserRole = UserRole.user.name
     username: Optional[str]
     full_name: Optional[str]
     age: Optional[int]
     avatar: Optional[str]
     phone: Optional[str]
-    _is_active: bool = True
-    _is_superuser: bool = False
+    is_active: bool = True
+    is_superuser: bool = False
 
     class Config:
         use_enum_values = True
+        fields = {
+            "is_active": {"exclude": True},
+            "is_superuser": {"exclude": True},
+        }
 
     @validator("username")
     def validate_username(cls, value):  # noqa
@@ -39,10 +43,11 @@ class UserBase(BaseModel):
         return value
 
     @validator("phone")
-    def validate_phone(cls, v):  # noqa
-        regex = r"^(\+)[1-9][0-9\-\(\)\.]{9,15}$"
-        if v and not re.search(regex, v, re.I):
-            raise ValueError("Phone Number Invalid.")
+    def validate_phone(cls, v: str):  # noqa
+        if v:
+            regex = r"^(\+)[1-9][0-9\-\(\)\.]{9,15}$"
+            if v.isdigit() and not re.search(regex, v, re.I):
+                raise ValueError("Phone Number Invalid.")
         return v
 
 
@@ -56,9 +61,9 @@ class UserCreate(UserBase):
         def values_match_ratio(a, b):
             return SequenceMatcher(None, a, b).ratio() if a and b else None
 
-        assert values.get("email"), 'email is None'
-        assert values.get("username"), 'username is None'
-        assert values.get("password"), 'password is None'
+        assert values.get("email"), "email is None"
+        assert values.get("username"), "username is None"
+        assert values.get("password"), "password is None"
 
         username_password_match: float = values_match_ratio(
             values.get("username"),
@@ -73,10 +78,12 @@ class UserCreate(UserBase):
         assert email_password_match < 0.5, "Password must not match email"
         return values
 
-    @root_validator(pre=True)
+    @root_validator()
     def validate_all(cls, values):
         if values.get("password_confirm"):
-            assert values.get("password") == values.get("password_confirm"), 'Passwords mismatch.'
+            assert values.get("password") == values.get(
+                "password_confirm"
+            ), "Passwords mismatch."
         if values.get("id") is None:
             try:
                 return cls.check_password_strongness(values)
@@ -89,6 +96,13 @@ class UserCreate(UserBase):
         return value
 
 
+class UserCreateOpen(BaseModel):
+    email: EmailStr
+    username: str
+    password: str
+    password_confirm: str
+
+
 # Properties to receive via API on update
 class UserUpdate(UserBase):
     pass
@@ -96,6 +110,8 @@ class UserUpdate(UserBase):
 
 class UserInDBBase(UserBase):
     id: Optional[int] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     class Config:
         orm_mode = True
@@ -103,7 +119,7 @@ class UserInDBBase(UserBase):
 
 # Additional properties to return via API
 class User(UserInDBBase):
-    pass
+    role: Optional[UserRole]
 
 
 # Additional properties stored in DB but not returned by API

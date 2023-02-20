@@ -20,6 +20,8 @@ from app.models.user_role import UserRole
 from app.models.user import User
 from app.tests.utils.utils import gen_random_password
 
+fake: Faker = Faker()
+
 
 async def truncate_tables():
     asyncpg_conn: Connection = await pg_database.get_connection()
@@ -43,7 +45,7 @@ async def recreate_all():
     await init_db()
 
 
-async def create_users(users_count=10, fake: Faker = Faker()):
+async def create_users(users_count=10):
     ration_teachers_to_students = users_count // 2
     users: list[User] = []
     users_cred_list = []

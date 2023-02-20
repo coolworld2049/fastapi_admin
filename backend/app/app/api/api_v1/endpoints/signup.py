@@ -12,10 +12,14 @@ router = APIRouter()
 
 
 @router.post(
-    "/signup", status_code=status.HTTP_201_CREATED, response_model=schemas.User
+    "/signup",
+    response_model=schemas.User,
+    status_code=status.HTTP_201_CREATED,
+    response_model_exclude_defaults=True,
+    response_model_exclude_unset=True,
 )
 async def signup(
-    user_in: schemas.UserCreate, db: AsyncSession = Depends(database.get_db)
+    user_in: schemas.UserCreateOpen, db: AsyncSession = Depends(database.get_db)
 ):
     user = await crud.user.get_by_email(db, email=user_in.email)
     if user:

@@ -2,7 +2,7 @@ from loguru import logger
 from starlette.requests import Request
 from starlette.responses import Response
 
-from app.main import app
+from app.main import app  # noqa
 
 
 # @app.middleware("http")

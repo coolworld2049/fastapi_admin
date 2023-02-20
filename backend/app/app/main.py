@@ -6,7 +6,6 @@ from fastapi.openapi.docs import get_swagger_ui_html
 from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
-
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
 
@@ -83,7 +82,7 @@ async def root(request: Request):
         "index.html",
         context={
             "request": request,
-            "proto": 'http',
+            "proto": "http",
             "host": get_app_settings().DOMAIN,
             "port": get_app_settings().PORT,
         },

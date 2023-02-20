@@ -24,7 +24,7 @@ class User(BaseModel, TimestampsMixin):
     )
     full_name = Column(Text)
     username = Column(Text, nullable=False, unique=True)
-    age = Column(SmallInteger)
+    age = Column(SmallInteger, server_default=None)
     phone = Column(String(20))
     avatar = Column(Text)
     is_active = Column(Boolean, nullable=False, server_default=text("true"))

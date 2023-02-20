@@ -34,3 +34,4 @@ raven
 faker
 pytest
 aiogram==3.0.0b6
+fastapi-user-auth
